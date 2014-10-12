@@ -22,6 +22,7 @@ import org.exfio.weavedroid.Constants.ResourceType;
 public class ServerInfo implements Serializable {
 	private static final long serialVersionUID = 238330408340527325L;
 	
+	final private String  guid;
 	final private String  baseURL;
 	final private String  user;
 	final private String  password;

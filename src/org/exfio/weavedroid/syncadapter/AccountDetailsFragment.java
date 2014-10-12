@@ -26,7 +26,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import org.exfio.weavedroid.R;
+import org.exfio.weavedroid.util.Log;
 
 public class AccountDetailsFragment extends Fragment implements TextWatcher {
 	
@@ -94,7 +96,7 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 			}
 			
 		} catch (Exception e) {
-			//FIXME - log error
+			Log.getInstance().error(String.format("Error creating account - %s", e.getMessage()));
 		}
 	}
 

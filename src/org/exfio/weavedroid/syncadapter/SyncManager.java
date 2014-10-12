@@ -15,12 +15,12 @@ import android.util.Log;
 
 import org.exfio.weave.WeaveException;
 import org.exfio.weave.client.NotFoundException;
-import org.exfio.weavedroid.ArrayUtils;
 import org.exfio.weavedroid.resource.LocalCollection;
 import org.exfio.weavedroid.resource.LocalStorageException;
 import org.exfio.weavedroid.resource.RecordNotFoundException;
 import org.exfio.weavedroid.resource.Resource;
 import org.exfio.weavedroid.resource.WeaveCollection;
+import org.exfio.weavedroid.util.ArrayUtils;
 
 public class SyncManager {
 	private static final String TAG = "exfio.SyncManager";

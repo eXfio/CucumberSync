@@ -14,27 +14,36 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map;
 
-//import org.apache.http.HttpStatus;
-
-
-
 import lombok.Getter;
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SyncResult;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 
 import org.exfio.weave.WeaveException;
 import org.exfio.weave.client.WeaveClient;
 import org.exfio.weave.client.WeaveClientFactory;
 import org.exfio.weave.client.WeaveClientV5Params;
+import org.exfio.weave.ext.clientauth.ClientAuth;
+import org.exfio.weave.ext.clientauth.ClientAuthRequestMessage;
+import org.exfio.weave.ext.comm.Message;
+import org.exfio.weavedroid.ReceivedClientAuth;
+import org.exfio.weavedroid.MainActivity;
+import org.exfio.weavedroid.PendingClientAuth;
+import org.exfio.weavedroid.R;
 import org.exfio.weavedroid.resource.LocalCollection;
 import org.exfio.weavedroid.resource.LocalStorageException;
 import org.exfio.weavedroid.resource.WeaveCollection;
@@ -100,9 +109,11 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 		//TODO - handle user defined Weave Storage version
 		
 		//DEBUG only
-		org.exfio.weavedroid.Log.init("debug");
-		org.exfio.weavedroid.Log.getInstance().info("Initialised logger");
-		org.exfio.weavedroid.Log.getInstance().debug("Debug message");
+		org.exfio.weavedroid.util.Log.init("debug");
+		org.exfio.weavedroid.util.Log.getInstance().info("Initialised logger");
+		org.exfio.weavedroid.util.Log.getInstance().debug("Debug message");
+
+		Log.d(TAG, String.format("Weave credentials - username: %s, password: %s, synckey: %s", settings.getUserName(), settings.getPassword(), settings.getSyncKey()));
 		
 		//get weave account params
 		WeaveClientV5Params params = new WeaveClientV5Params();
@@ -124,6 +135,76 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 			Log.e(TAG, e.getMessage());
 			closeWeaveClient();
 			return;
+		}
+		
+		Log.i(TAG, String.format("Checking messages"));
+
+		Message[] messages = null;
+		
+		try {
+			
+			//Initialise sqldroid jdbc provider
+			Class.forName("org.sqldroid.SQLDroidDriver");
+            String databasePath = getContext().getDatabasePath(settings.getGuid()).getAbsolutePath();
+
+			Log.d(TAG, String.format("Database path: %s", databasePath));
+
+			ClientAuth auth = new ClientAuth(weaveClient, databasePath);
+
+			Log.d(TAG, String.format("Client auth before - authcode: %s, status: %s, auth by: %s", auth.getAuthCode(), auth.getAuthStatus(), auth.getAuthBy()));
+
+			//FIXME - DEBUG only
+			auth.setPbkdf2Iterations(1);
+			auth.setPbkdf2Length(128);
+			
+			String curStatus = auth.getAuthStatus();
+			messages = auth.processClientAuthMessages();
+			String newStatus = auth.getAuthStatus();
+
+			Log.d(TAG, String.format("Client auth after - authcode: %s, status: %s, auth by: %s", auth.getAuthCode(), auth.getAuthStatus(), auth.getAuthBy()));
+
+			if ( curStatus != null && curStatus.equals("pending") ) {
+				
+				//If client has been authorised update configuration
+				if ( newStatus.equals("authorised") ) {
+					//Update synckey, re-initialise weave client and notify user clientauth request approved
+
+					Log.i(TAG, String.format("Client auth request approved by '%s'", auth.getAuthBy()));
+
+					accountManager.setPassword(account, AccountSettings.encodePassword(settings.getPassword(), auth.getSyncKey()));
+					
+					params.syncKey = auth.getSyncKey();
+					weaveClient.init(params);
+
+					//Notify user that clientauth request has been approved
+					displayNotificationApprovedClientAuth(account.name, auth.getAuthBy());
+					
+				} else if ( newStatus.equals("pending") ) {
+					//Client not yet authenticated
+					
+					Log.i(TAG, String.format("Client auth request pending with authcode '%s'", auth.getAuthCode()));
+					
+					//Notify user of the authcode to be entered in authorising device
+					displayNotificationPendingClientAuth(account.name, auth.getAuthCode());
+					
+					return;
+				}
+			}
+			
+		} catch(Exception e) {
+			Log.e(TAG, String.format("%s - %s", e.getClass().getName() , e.getMessage()));
+			return;
+		}
+		
+		Log.d(TAG, String.format("Processing %d pending client auth request messages", messages.length));
+		
+		for (Message msg: messages) {
+			ClientAuthRequestMessage caMsg = (ClientAuthRequestMessage)msg;
+
+			Log.i(TAG, String.format("Client auth request pending approval for client '%s'", caMsg.getClientName()));
+
+			//Notify user that a clientauth request is waiting for approval
+			displayNotificationReceivedClientAuth(account.name, caMsg);
 		}
 		
 		//getSyncPairs() overridden by implementing classes, i.e. ContactsSyncAdapter 
@@ -150,7 +231,7 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 				syncResult.stats.numParseExceptions++;
 				Log.e(TAG, "Invalid Weave response", ex);
 				
-			//TODO - log sync status
+			//FIXME - log sync status
 			
 //			} catch (HttpException ex) {
 //				if (ex.getCode() == HttpStatus.SC_UNAUTHORIZED) {
@@ -177,4 +258,119 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 			}
 		}
 	}
+	
+	protected void displayNotificationReceivedClientAuth(String accountName, ClientAuthRequestMessage msg) {
+		Log.d(TAG, "displayNotificationApproveClientAuth()");
+		
+		int notificationId = 111;
+		
+		// Invoking the default notification service
+		NotificationCompat.Builder  mBuilder = new NotificationCompat.Builder(this.getContext());	
+
+		mBuilder.setContentTitle("Authentication request received");
+		mBuilder.setContentText(String.format("'%s' is requesting authentication for WeaveDroid account '%s'", msg.getClientName(), accountName));
+		mBuilder.setTicker("Authentication request received");
+		mBuilder.setSmallIcon(R.drawable.ic_launcher);
+
+		// Increase notification number every time a new notification arrives 
+		mBuilder.setNumber(1);
+
+		// Creates an explicit intent for an Activity in your app 
+		Intent resultIntent = new Intent(this.getContext(), ReceivedClientAuth.class);
+		resultIntent.putExtra(ReceivedClientAuth.KEY_EXTRA_NOTIFICATIONID, notificationId);
+		resultIntent.putExtra(ReceivedClientAuth.KEY_EXTRA_ACCOUNTNAME, accountName);
+		resultIntent.putExtra(ReceivedClientAuth.KEY_EXTRA_CLIENTNAME, msg.getClientName());
+
+		//This ensures that navigating backward from the Activity leads out of the app to Home page
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.getContext());
+
+		// Adds the back stack for the Intent
+		stackBuilder.addParentStack(ReceivedClientAuth.class);
+
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+			0,
+			PendingIntent.FLAG_ONE_SHOT //can only be used once
+		);
+		
+		// start the activity when the user clicks the notification text
+		mBuilder.setContentIntent(resultPendingIntent);
+
+		NotificationManager nm = (NotificationManager) this.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+		// pass the Notification object to the system 
+		nm.notify(notificationId, mBuilder.build());
+	}
+
+	protected void displayNotificationPendingClientAuth(String accountName, String authCode) {
+		Log.d(TAG, "displayNotificationPendingClientAuth()");
+		
+		int notificationId = 112;
+		
+		// Invoking the default notification service
+		NotificationCompat.Builder  mBuilder = new NotificationCompat.Builder(this.getContext());	
+
+		mBuilder.setContentTitle("Pending authentication request");
+		mBuilder.setContentText(String.format("Enter authcode '%s' on an authenticated device to approve acces to WeaveDroid account '%s'", authCode, accountName));
+		mBuilder.setTicker("Pending authentication request");
+		mBuilder.setSmallIcon(R.drawable.ic_launcher);
+
+		// Increase notification number every time a new notification arrives 
+		mBuilder.setNumber(1);
+
+		// Creates an explicit intent for an Activity in your app 
+		Intent resultIntent = new Intent(this.getContext(), PendingClientAuth.class);
+		resultIntent.putExtra(PendingClientAuth.KEY_EXTRA_NOTIFICATIONID, notificationId);
+		resultIntent.putExtra(PendingClientAuth.KEY_EXTRA_ACCOUNTNAME, accountName);
+		resultIntent.putExtra(PendingClientAuth.KEY_EXTRA_AUTHCODE, authCode);
+
+		//This ensures that navigating backward from the Activity leads out of the app to Home page
+		TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.getContext());
+
+		// Adds the back stack for the Intent
+		stackBuilder.addParentStack(PendingClientAuth.class);
+
+		// Adds the Intent that starts the Activity to the top of the stack
+		stackBuilder.addNextIntent(resultIntent);
+		PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(
+			0,
+			PendingIntent.FLAG_ONE_SHOT //can only be used once
+		);
+		
+		// start the activity when the user clicks the notification text
+		mBuilder.setContentIntent(resultPendingIntent);
+
+		NotificationManager nm = (NotificationManager) this.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+		// pass the Notification object to the system 
+		nm.notify(notificationId, mBuilder.build());
+	}
+
+	protected void displayNotificationApprovedClientAuth(String accountName, String authBy) {
+		Log.d(TAG, "displayNotificationApprovedClientAuth()");
+		
+		int notificationId = 113;
+		
+		// Invoking the default notification service
+		NotificationCompat.Builder  mBuilder = new NotificationCompat.Builder(this.getContext());	
+
+		mBuilder.setContentTitle("Authentication request approved");
+		mBuilder.setContentText(String.format("'%s' has approved authentication request for WeaveDroid account '%s'", authBy, accountName));
+		mBuilder.setTicker("Authentication request approved");
+		mBuilder.setSmallIcon(R.drawable.ic_launcher);
+
+		// Increase notification number every time a new notification arrives 
+		mBuilder.setNumber(1);
+		
+		// No activity when user selects notification
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(this.getContext(), 0, new Intent(), 0);
+		mBuilder.setContentIntent(resultPendingIntent);
+
+		NotificationManager nm = (NotificationManager) this.getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+		// pass the Notification object to the system 
+		nm.notify(notificationId, mBuilder.build());
+	}
+
 }

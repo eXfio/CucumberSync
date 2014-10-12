@@ -16,6 +16,7 @@ public class AccountSettings {
 	private final static int CURRENT_VERSION = 1;
 	private final static String
 		KEY_SETTINGS_VERSION = "version",
+		KEY_GUID             = "guid",
 		KEY_USERNAME         = "username",
 		KEY_AUTH_PREEMPTIVE  = "auth_preemptive",
 		KEY_BASE_URL         = "base_url",
@@ -49,6 +50,7 @@ public class AccountSettings {
 	public static Bundle createBundle(ServerInfo serverInfo) {
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_SETTINGS_VERSION, String.valueOf(CURRENT_VERSION));
+		bundle.putString(KEY_GUID,             serverInfo.getGuid());
 		bundle.putString(KEY_BASE_URL,         serverInfo.getBaseURL());
 		bundle.putString(KEY_USERNAME,         serverInfo.getUser());
 		bundle.putString(KEY_AUTH_PREEMPTIVE,  Boolean.toString(serverInfo.isAuthPreemptive()));
@@ -62,7 +64,7 @@ public class AccountSettings {
 	}
 
 	public static String decodePassword(String password) {
-		Pattern pattern = Pattern.compile("^(.+)" + ENCODE_PASSWORD_SEPARATOR + "(.+)$");
+		Pattern pattern = Pattern.compile("^(.+)" + ENCODE_PASSWORD_SEPARATOR + "(.*)$");
 		Matcher matcher = pattern.matcher(password);
 		if (matcher.find()) {
 		    return matcher.group(1);
@@ -71,12 +73,16 @@ public class AccountSettings {
 	}
 
 	public static String decodeSyncKey(String password) {
-		Pattern pattern = Pattern.compile("^(.+)" + ENCODE_PASSWORD_SEPARATOR + "(.+)$");
+		Pattern pattern = Pattern.compile("^(.+)" + ENCODE_PASSWORD_SEPARATOR + "(.*)$");
 		Matcher matcher = pattern.matcher(password);
 		if (matcher.find()) {
 		    return matcher.group(2);
 		}
 		return null;
+	}
+
+	public String getGuid() {
+		return accountManager.getUserData(account, KEY_GUID);
 	}
 
 	public String getBaseURL() {

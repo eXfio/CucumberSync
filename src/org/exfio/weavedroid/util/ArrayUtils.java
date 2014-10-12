@@ -8,7 +8,7 @@
  * Contributors:
  *     Richard Hirner (bitfire web engineering) - initial API and implementation
  ******************************************************************************/
-package org.exfio.weavedroid;
+package org.exfio.weavedroid.util;
 
 import java.lang.reflect.Array;
 

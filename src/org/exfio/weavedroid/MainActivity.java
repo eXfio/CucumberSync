@@ -32,9 +32,9 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		//DEBUG only
-		org.exfio.weavedroid.Log.init("debug");
-		org.exfio.weavedroid.Log.getInstance().info("Initialised logger");
-		org.exfio.weavedroid.Log.getInstance().debug("Debug message");
+		org.exfio.weavedroid.util.Log.init("debug");
+		org.exfio.weavedroid.util.Log.getInstance().info("Initialised logger");
+		org.exfio.weavedroid.util.Log.getInstance().debug("Debug message");
 		
 		setContentView(R.layout.activity_main);
 		

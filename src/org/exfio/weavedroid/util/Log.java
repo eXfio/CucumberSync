@@ -1,4 +1,4 @@
-package org.exfio.weavedroid;
+package org.exfio.weavedroid.util;
 
 import java.lang.IllegalArgumentException;
 import java.util.logging.Level;

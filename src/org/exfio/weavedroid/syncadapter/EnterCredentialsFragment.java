@@ -14,7 +14,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.commons.lang.StringUtils;
-import org.exfio.weavedroid.URIUtils;
 
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -34,6 +33,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import org.exfio.weave.util.URIUtils;
 import org.exfio.weavedroid.R;
 
 public class EnterCredentialsFragment extends Fragment implements TextWatcher {
@@ -86,16 +87,18 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 
 		//DEBUG For testing only
 		spnrProtocol.setSelection(0);
+        
 		//Dev environment
 		//editBaseURL.setText("argent.local:8081");
 		//editUserName.setText("gerry");
 		//editPassword.setText("test1234");
 		//editSyncKey.setText("7-ch6pu-6teey-36ndf-gwsex-93uza");
+        
 		//ownCloud environment
 		editBaseURL.setText("cloud.kaleido.com.au/remote.php/mozilla_sync/");
 		editUserName.setText("gerry");
 		editPassword.setText("test1234");
-		editSyncKey.setText("E7NEP9G26C7EF33KUFDZENHW94");
+		//editSyncKey.setText("E7NEP9G26C7EF33KUFDZENHW94");
 		
 		return v;
 	}

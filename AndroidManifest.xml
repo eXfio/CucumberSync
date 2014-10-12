@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
 
     <application
         android:allowBackup="false"
@@ -31,10 +32,15 @@
                 android:resource="@xml/account_authenticator" />
         </service>
 
+        <!-- android:process=":sync" creates new process
         <service 
             android:name="org.exfio.weavedroid.syncadapter.ContactsSyncAdapterService" 
             android:exported="true" 
             android:process=":sync">
+        -->
+        <service 
+            android:name="org.exfio.weavedroid.syncadapter.ContactsSyncAdapterService" 
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
@@ -58,7 +64,16 @@
             android:name="org.exfio.weavedroid.syncadapter.AddAccountActivity"
             android:excludeFromRecents="true" >
         </activity>
-        
+        <activity
+            android:name="org.exfio.weavedroid.ReceivedClientAuth"
+            android:parentActivityName="org.exfio.weavedroid.MainActivity"
+            android:excludeFromRecents="true">
+        </activity>
+        <activity
+            android:name="org.exfio.weavedroid.PendingClientAuth"
+            android:parentActivityName="org.exfio.weavedroid.MainActivity"
+            android:excludeFromRecents="true">
+        </activity>
         
     </application>
 
