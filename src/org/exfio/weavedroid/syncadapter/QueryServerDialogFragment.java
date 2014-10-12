@@ -23,17 +23,14 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.exfio.weave.client.AccountParams;
 import org.exfio.weave.WeaveException;
 import org.exfio.weave.client.WeaveClient;
-import org.exfio.weave.client.WeaveClient.StorageVersion;
-import org.exfio.weave.client.WeaveClientParams;
-import org.exfio.weave.client.WeaveAutoDiscoverParams;
-import org.exfio.weave.client.WeaveStorageV5Params;
+import org.exfio.weave.client.WeaveClientFactory;
+import org.exfio.weave.client.WeaveClientV5Params;
 import org.exfio.weave.client.WeaveCollectionInfo;
-
 import org.exfio.weavedroid.Constants;
 import org.exfio.weavedroid.syncadapter.AccountDetailsFragment;
-
 import org.exfio.weavedroid.R;
 
 public class QueryServerDialogFragment extends DialogFragment implements LoaderCallbacks<ServerInfo> {
@@ -128,19 +125,19 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 				
 				// (1/3) Autodiscover weave sync storage version				
 				WeaveClient weaveClient = null;
-				WeaveAutoDiscoverParams adParams = new WeaveAutoDiscoverParams();
+				AccountParams adParams = new AccountParams();
 				adParams.baseURL  = serverInfo.getBaseURL();
 				adParams.user     = serverInfo.getUser();
 				adParams.password = serverInfo.getPassword();
 				
-				weaveClient = WeaveClient.getInstance(adParams);
+				weaveClient = WeaveClientFactory.getInstance(adParams);
 
 				// (2/3) Initialise weave client
-				WeaveClientParams weaveParams = null;
+				AccountParams weaveParams = null;
 				
-				if ( weaveClient.getStorageVersion() == StorageVersion.v5 ){
+				if ( weaveClient.getStorageVersion() == WeaveClientFactory.StorageVersion.v5 ){
 					//Only v5 is currently supported
-					WeaveStorageV5Params v5Params = new WeaveStorageV5Params();
+					WeaveClientV5Params v5Params = new WeaveClientV5Params();
 					v5Params.baseURL  = serverInfo.getBaseURL();
 					v5Params.user     = serverInfo.getUser();
 					v5Params.password = serverInfo.getPassword();

@@ -14,7 +14,7 @@ import android.content.SyncResult;
 import android.util.Log;
 
 import org.exfio.weave.WeaveException;
-
+import org.exfio.weave.client.NotFoundException;
 import org.exfio.weavedroid.ArrayUtils;
 import org.exfio.weavedroid.resource.LocalCollection;
 import org.exfio.weavedroid.resource.LocalStorageException;
@@ -71,7 +71,13 @@ public class SyncManager {
 		Set<String> remotelyAdded   = new HashSet<String>();
 		Set<String> remotelyUpdated = new HashSet<String>();
 		
-		String [] remoteResourceIds = remote.getObjectIdsModifiedSince(local.getModifiedTime());
+		String [] remoteResourceIds = null;
+		try {
+			remoteResourceIds = remote.getObjectIdsModifiedSince(local.getModifiedTime());
+		} catch (NotFoundException e) {
+			throw new WeaveException("Couldn't get modified objects", e);
+		}
+		
 		for (String id: remoteResourceIds) {
 			try {
 				Resource localResource = local.findByUID(id, false);
@@ -114,6 +120,8 @@ public class SyncManager {
 					if (res.getId() != null)	{
 						try {
 							remote.delete(res.getUid());
+						} catch (NotFoundException e) {
+							throw new WeaveException(e);
 						} catch (WeaveException e) {
 							throw new WeaveException(e);
 						}
@@ -164,8 +172,12 @@ public class SyncManager {
 					remote.update(res);
 					local.clearDirty(res);
 					count++;
+				} catch (NotFoundException e) {
+					Log.e(TAG, "Couldn't update remote record", e);
+					continue;
 				} catch (RecordNotFoundException e) {
 					Log.e(TAG, "Couldn't read dirty record", e);
+					continue;
 				}
 			}
 		} finally {
@@ -186,13 +198,19 @@ public class SyncManager {
 		int count = 0;
 		Log.i(TAG, "Fetching " + resourcesToAdd.length + " new remote resource(s)");
 		
-		for (String[] resources : ArrayUtils.partition(resourcesToAdd, MAX_MULTIGET_RESOURCES))
-			for (Resource res : remote.multiGet(resources)) {
-				Log.d(TAG, "Adding " + res.getId());
-				local.add(res);
-				local.commit();
-				count++;
+		for (String[] resources : ArrayUtils.partition(resourcesToAdd, MAX_MULTIGET_RESOURCES)) {
+			try {
+				for (Resource res : remote.multiGet(resources)) {
+					Log.d(TAG, "Adding " + res.getId());
+					local.add(res);
+					local.commit();
+					count++;
+				}
+			} catch (NotFoundException e) {
+				Log.e(TAG, String.format("Couldn't get remote resources - %s", e.getMessage()));
+				continue;
 			}
+		}
 		return count;
 	}
 	
@@ -208,13 +226,19 @@ public class SyncManager {
 		int count = 0;
 		Log.i(TAG, "Fetching " + resourcesToUpdate.length + " updated remote resource(s)");
 		
-		for (String[] resources : ArrayUtils.partition(resourcesToUpdate, MAX_MULTIGET_RESOURCES))
-			for (Resource res : remote.multiGet(resources)) {
-				Log.i(TAG, "Updating " + res.getId());
-				local.updateByRemoteId(res);
-				local.commit();
-				count++;
+		for (String[] resources : ArrayUtils.partition(resourcesToUpdate, MAX_MULTIGET_RESOURCES)) {
+			try {
+				for (Resource res : remote.multiGet(resources)) {
+					Log.i(TAG, "Updating " + res.getId());
+					local.updateByRemoteId(res);
+					local.commit();
+					count++;
+				}
+			} catch (NotFoundException e) {
+				Log.e(TAG, String.format("Couldn't get remote resources - %s", e.getMessage()));
+				continue;
 			}
+		}	
 		return count;
 	}
 

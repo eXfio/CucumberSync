@@ -3,6 +3,7 @@ package org.exfio.weavedroid.resource;
 import java.util.List;
 import java.util.LinkedList;
 
+import org.exfio.weave.client.NotFoundException;
 import org.exfio.weave.client.WeaveClient;
 import org.exfio.weave.client.WeaveBasicObject;
 import org.exfio.weave.WeaveException;
@@ -18,7 +19,7 @@ public class WeaveAddressBook extends WeaveCollection<Contact> {
 	
 	
 	/* internal member operations */
-	public Contact[] multiGet(String[] ids) throws WeaveException {		
+	public Contact[] multiGet(String[] ids) throws WeaveException, NotFoundException {		
 		List<Contact> colContact = new LinkedList<Contact>();
 
 		WeaveBasicObject[] colWbo = this.weaveClient.getCollection(collection, ids, null, null, null, null, null, null, null, null); 
@@ -31,8 +32,8 @@ public class WeaveAddressBook extends WeaveCollection<Contact> {
 		return colContact.toArray(new Contact[0]);
 	}
 
-	public Contact get(String id) throws WeaveException {
-		WeaveBasicObject wbo = this.weaveClient.getItem(this.collection, id);
+	public Contact get(String id) throws WeaveException, NotFoundException {
+		WeaveBasicObject wbo = this.weaveClient.get(this.collection, id);
 		return Contact.fromWeaveBasicObject(wbo);
 	}
 
@@ -42,7 +43,7 @@ public class WeaveAddressBook extends WeaveCollection<Contact> {
 
 	public void add(Contact res) throws WeaveException {
 		WeaveBasicObject wbo = Contact.toWeaveBasicObject(res);
-		this.weaveClient.putItem(collection, wbo.getId(), wbo);
+		this.weaveClient.put(collection, wbo.getId(), wbo);
 	}
 	
 	public void update(Resource res) throws WeaveException {
@@ -54,10 +55,10 @@ public class WeaveAddressBook extends WeaveCollection<Contact> {
 
 		//TODO confirm resource exists
 		
-		this.weaveClient.putItem(collection, wbo.getId(), wbo);
+		this.weaveClient.put(collection, wbo.getId(), wbo);
 	}
 	
-	public void delete(String id) throws WeaveException {
-		this.weaveClient.deleteItem(collection, id);
+	public void delete(String id) throws WeaveException, NotFoundException {
+		this.weaveClient.delete(collection, id);
 	}
 }

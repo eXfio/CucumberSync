@@ -3,6 +3,7 @@ package org.exfio.weavedroid.resource;
 import java.util.List;
 
 import org.exfio.weave.WeaveException;
+import org.exfio.weave.client.NotFoundException;
 import org.exfio.weave.client.WeaveClient;
 import org.exfio.weave.client.WeaveBasicObject;
 import org.exfio.weave.client.WeaveCollectionInfo;
@@ -32,17 +33,17 @@ public abstract class WeaveCollection<T extends Resource> {
 		return colinfo.getModified();
 	}
 
-	public String[] getObjectIds() throws WeaveException {
+	public String[] getObjectIds() throws WeaveException, NotFoundException {
 		return weaveClient.getCollectionIds(collection, null, null, null, null, null, null, null, null);
 	}
 
-	public String[] getObjectIdsModifiedSince(Double modifiedDate) throws WeaveException {
+	public String[] getObjectIdsModifiedSince(Double modifiedDate) throws WeaveException, NotFoundException {
 		return weaveClient.getCollectionIds(collection, null, null, modifiedDate, null, null, null, null, null);
 	}
 
-	public abstract T[] multiGet(String[] ids) throws WeaveException;
+	public abstract T[] multiGet(String[] ids) throws WeaveException, NotFoundException;
 
-	public T[] multiGet(Resource[] resources) throws WeaveException {
+	public T[] multiGet(Resource[] resources) throws WeaveException, NotFoundException {
 		String[] ids = new String[resources.length];
 		for (int i = 0; i < resources.length; i++) {
 			ids[i] = resources[i].getUid();
@@ -50,19 +51,19 @@ public abstract class WeaveCollection<T extends Resource> {
 		return multiGet(ids);
 	}
 
-	public abstract T get(String id) throws WeaveException;
+	public abstract T get(String id) throws WeaveException, NotFoundException;
 
-	public T get(Resource res) throws WeaveException {
+	public T get(Resource res) throws WeaveException, NotFoundException {
 		return get(res.getUid());
 	}
 
 	public abstract void add(Resource res) throws WeaveException;
 	
-	public abstract void update(Resource res) throws WeaveException;
+	public abstract void update(Resource res) throws WeaveException, NotFoundException;
 
-	public abstract void delete(String id) throws WeaveException;
+	public abstract void delete(String id) throws WeaveException, NotFoundException;
 	
-	public void delete(Resource res) throws WeaveException {
+	public void delete(Resource res) throws WeaveException, NotFoundException {
 		delete(res.getUid());
 	}
 }

@@ -16,6 +16,8 @@ import java.util.Map;
 
 //import org.apache.http.HttpStatus;
 
+
+
 import lombok.Getter;
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -31,8 +33,8 @@ import android.util.Log;
 
 import org.exfio.weave.WeaveException;
 import org.exfio.weave.client.WeaveClient;
-import org.exfio.weave.client.WeaveStorageV5Params;
-
+import org.exfio.weave.client.WeaveClientFactory;
+import org.exfio.weave.client.WeaveClientV5Params;
 import org.exfio.weavedroid.resource.LocalCollection;
 import org.exfio.weavedroid.resource.LocalStorageException;
 import org.exfio.weavedroid.resource.WeaveCollection;
@@ -103,7 +105,7 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 		org.exfio.weavedroid.Log.getInstance().debug("Debug message");
 		
 		//get weave account params
-		WeaveStorageV5Params params = new WeaveStorageV5Params();
+		WeaveClientV5Params params = new WeaveClientV5Params();
 		params.baseURL  = settings.getBaseURL();
 		params.user     = settings.getUserName();
 		params.password = settings.getPassword();
@@ -117,8 +119,7 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 		
 		//Initialise weave client
 		try {
-			weaveClient = WeaveClient.getInstance(org.exfio.weave.client.WeaveClient.StorageVersion.v5);
-			weaveClient.init(params);
+			weaveClient = WeaveClientFactory.getInstance(params);
 		} catch (WeaveException e) {
 			Log.e(TAG, e.getMessage());
 			closeWeaveClient();

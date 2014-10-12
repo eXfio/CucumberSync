@@ -86,10 +86,16 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 
 		//DEBUG For testing only
 		spnrProtocol.setSelection(0);
-		editBaseURL.setText("argent.local:8081");
+		//Dev environment
+		//editBaseURL.setText("argent.local:8081");
+		//editUserName.setText("gerry");
+		//editPassword.setText("test1234");
+		//editSyncKey.setText("7-ch6pu-6teey-36ndf-gwsex-93uza");
+		//ownCloud environment
+		editBaseURL.setText("cloud.kaleido.com.au/remote.php/mozilla_sync/");
 		editUserName.setText("gerry");
 		editPassword.setText("test1234");
-		editSyncKey.setText("7-ch6pu-6teey-36ndf-gwsex-93uza");
+		editSyncKey.setText("E7NEP9G26C7EF33KUFDZENHW94");
 		
 		return v;
 	}
