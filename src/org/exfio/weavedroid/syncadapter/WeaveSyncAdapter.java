@@ -47,6 +47,7 @@ import org.exfio.weavedroid.R;
 import org.exfio.weavedroid.resource.LocalCollection;
 import org.exfio.weavedroid.resource.LocalStorageException;
 import org.exfio.weavedroid.resource.WeaveCollection;
+import org.exfio.weavedroid.util.SystemUtils;
 
 
 public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter implements Closeable {
@@ -109,10 +110,10 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 		//TODO - handle user defined Weave Storage version
 		
 		//DEBUG only
-		org.exfio.weavedroid.util.Log.init("debug");
-		org.exfio.weavedroid.util.Log.getInstance().info("Initialised logger");
-		org.exfio.weavedroid.util.Log.getInstance().debug("Debug message");
-
+		if ( SystemUtils.isDebuggable(getContext()) ) {
+			org.exfio.weavedroid.util.Log.init("debug");
+		}
+		
 		Log.d(TAG, String.format("Weave credentials - username: %s, password: %s, synckey: %s", settings.getUserName(), settings.getPassword(), settings.getSyncKey()));
 		
 		//get weave account params
@@ -154,8 +155,7 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 			Log.d(TAG, String.format("Client auth before - authcode: %s, status: %s, auth by: %s", auth.getAuthCode(), auth.getAuthStatus(), auth.getAuthBy()));
 
 			//FIXME - DEBUG only
-			auth.setPbkdf2Iterations(1);
-			auth.setPbkdf2Length(128);
+			auth.setPbkdf2Iterations(1000);
 			
 			String curStatus = auth.getAuthStatus();
 			messages = auth.processClientAuthMessages();
@@ -279,6 +279,7 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 		Intent resultIntent = new Intent(this.getContext(), ReceivedClientAuth.class);
 		resultIntent.putExtra(ReceivedClientAuth.KEY_EXTRA_NOTIFICATIONID, notificationId);
 		resultIntent.putExtra(ReceivedClientAuth.KEY_EXTRA_ACCOUNTNAME, accountName);
+		resultIntent.putExtra(ReceivedClientAuth.KEY_EXTRA_SESSIONID, msg.getMessageSessionId());
 		resultIntent.putExtra(ReceivedClientAuth.KEY_EXTRA_CLIENTNAME, msg.getClientName());
 
 		//This ensures that navigating backward from the Activity leads out of the app to Home page

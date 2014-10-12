@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.exfio.weavedroid.R;
+import org.exfio.weavedroid.util.SystemUtils;
 
 public class MainActivity extends Activity {
 
@@ -32,9 +33,9 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		//DEBUG only
-		org.exfio.weavedroid.util.Log.init("debug");
-		org.exfio.weavedroid.util.Log.getInstance().info("Initialised logger");
-		org.exfio.weavedroid.util.Log.getInstance().debug("Debug message");
+		if ( SystemUtils.isDebuggable(this) ) {
+			org.exfio.weavedroid.util.Log.init("debug");
+		}
 		
 		setContentView(R.layout.activity_main);
 		

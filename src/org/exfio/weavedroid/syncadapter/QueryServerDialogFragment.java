@@ -43,6 +43,7 @@ import org.exfio.weave.util.Base64;
 import org.exfio.weave.util.OSUtils;
 import org.exfio.weavedroid.Constants;
 import org.exfio.weavedroid.syncadapter.AccountDetailsFragment;
+import org.exfio.weavedroid.util.SystemUtils;
 import org.exfio.weavedroid.R;
 
 public class QueryServerDialogFragment extends DialogFragment implements LoaderCallbacks<ServerInfo> {
@@ -127,9 +128,9 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 			Log.d(TAG, "LoadInBackgroud()");
 			
 			//DEBUG only
-			org.exfio.weavedroid.util.Log.init("debug");
-			org.exfio.weavedroid.util.Log.getInstance().info("Initialised logger");
-			org.exfio.weavedroid.util.Log.getInstance().debug("Debug message");
+			if ( SystemUtils.isDebuggable(getContext()) ) {
+				org.exfio.weavedroid.util.Log.init("debug");
+			}
 			
 			//Build unique account guid that is also valid filename
 			String guid = null;
@@ -235,8 +236,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 					Log.i(TAG, String.format("Requesting client auth for client '%s'", clientName));
 					
 					//FIXME - DEBUG only
-					auth.setPbkdf2Iterations(1);
-					auth.setPbkdf2Length(128);
+					auth.setPbkdf2Iterations(1000);
 					
 					auth.requestClientAuth(clientName, serverInfo.getPassword(), databasePath);
 					String authCode = auth.getAuthCode();

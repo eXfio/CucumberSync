@@ -118,5 +118,8 @@
     <string name="exfio_account_name_hint">My Weave Sync Account</string>
     <string name="exception_exfio">Weave Sync error: %s</string>
     <string name="synckey">Sync Key:</string>
+    <string name="received_ca_authcode">Enter auth code here to approve</string>
+    <string name="received_ca_reject">Reject</string>
+    <string name="received_ca_approve">Approve</string>
 
 </resources>

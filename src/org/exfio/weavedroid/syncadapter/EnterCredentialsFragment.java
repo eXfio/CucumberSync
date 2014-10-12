@@ -85,7 +85,7 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 		// hook into action bar
 		setHasOptionsMenu(true);
 
-		//DEBUG For testing only
+		//FIXME DEBUG only
 		spnrProtocol.setSelection(0);
         
 		//Dev environment

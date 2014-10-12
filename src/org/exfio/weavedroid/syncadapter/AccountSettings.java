@@ -120,7 +120,6 @@ public class AccountSettings {
 		accountManager.setUserData(account, KEY_MODIFIED_TIME, modified.toString());
 	}
 	
-	
 	// update from previous account settings
 	// NOTE: update not yet required
 	
