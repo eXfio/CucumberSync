@@ -11,6 +11,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.io.StringReader;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import android.util.Log;
@@ -52,7 +55,6 @@ import ezvcard.property.Url;
 
 import org.exfio.weave.WeaveException;
 import org.exfio.weave.client.WeaveBasicObject;
-
 import org.exfio.weavedroid.Constants;
 
 @ToString(callSuper = true)
@@ -110,6 +112,8 @@ public class Contact extends Resource {
 	}
 	
 	public static Contact fromWeaveBasicObject(WeaveBasicObject wbo) throws WeaveException {
+		Log.d(TAG, "fromWeaveBasicObject()");
+		
 		Contact con = new Contact(wbo.getId(), wbo.getModified().toString());
 		
 		try {
@@ -125,14 +129,35 @@ public class Contact extends Resource {
 
 
 	public void parseJCard(InputStream is) throws IOException {
-		VCard vcard = Ezvcard.parse(is).first();
+		Log.d(TAG, "parseJCard()");
+		
+		//Log.d(TAG, "JSON: " + IOUtils.toString(is));
+		
+		List<List<String>> warnings = new LinkedList<List<String>>();
+		
+		VCard vcard = Ezvcard.parseJson(is).warnings(warnings).first();
+
+		Log.d(TAG, "Num EzVCard parse warnings: " + warnings.get(0).size());
+
+		if (warnings.get(0).size() > 0) {
+			Log.w(TAG, "EzVCard parse warnings");
+			Iterator<String> iter = warnings.get(0).listIterator();
+			while (iter.hasNext()) {
+				Log.w(TAG, iter.next());
+			}
+		}
+		
 		if (vcard == null)
 			return;
+
+		Log.d(TAG, "parsed JCard:\n" + Ezvcard.write(vcard).version(VCardVersion.V3_0).versionStrict(false).prodId(false).go());
 
 		fromVCardObject(vcard);
 	}
 
 	public void parseVCard(InputStream is) throws IOException, VCardException {
+		Log.d(TAG, "parseVCard()");
+
 		VCard vcard = Ezvcard.parse(is).first();
 		if (vcard == null)
 			return;
@@ -141,6 +166,8 @@ public class Contact extends Resource {
 	}
 
 	protected void fromVCardObject(VCard vcard) throws IOException, VCardException {
+		Log.d(TAG, "fromVCardObject()");
+
 		// now work through all supported properties
 		// supported properties are removed from the VCard after parsing
 		// so that only unknown properties are left and can be stored separately

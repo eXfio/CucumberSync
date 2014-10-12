@@ -97,6 +97,11 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 
 		//TODO - handle user defined Weave Storage version
 		
+		//DEBUG only
+		org.exfio.weavedroid.Log.init("debug");
+		org.exfio.weavedroid.Log.getInstance().info("Initialised logger");
+		org.exfio.weavedroid.Log.getInstance().debug("Debug message");
+		
 		//get weave account params
 		WeaveStorageV5Params params = new WeaveStorageV5Params();
 		params.baseURL  = settings.getBaseURL();

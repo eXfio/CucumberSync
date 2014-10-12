@@ -67,7 +67,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 
 	@Override
 	public Loader<ServerInfo> onCreateLoader(int id, Bundle args) {
-		Log.i(TAG, "onCreateLoader");
+		Log.d(TAG, "onCreateLoader()");
 		return new ServerInfoLoader(getActivity(), args);
 	}
 
@@ -108,6 +108,13 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 
 		@Override
 		public ServerInfo loadInBackground() {
+			Log.d(TAG, "LoadInBackgroud()");
+			
+			//DEBUG only
+			org.exfio.weavedroid.Log.init("debug");
+			org.exfio.weavedroid.Log.getInstance().info("Initialised logger");
+			org.exfio.weavedroid.Log.getInstance().debug("Debug message");
+			
 			ServerInfo serverInfo = new ServerInfo(
 				args.getString(EXTRA_BASE_URL),
 				args.getString(EXTRA_USER_NAME),

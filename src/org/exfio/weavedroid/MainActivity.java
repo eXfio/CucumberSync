@@ -31,6 +31,11 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		//DEBUG only
+		org.exfio.weavedroid.Log.init("debug");
+		org.exfio.weavedroid.Log.getInstance().info("Initialised logger");
+		org.exfio.weavedroid.Log.getInstance().debug("Debug message");
+		
 		setContentView(R.layout.activity_main);
 		
 		TextView tvWorkaround = (TextView)findViewById(R.id.text_workaround);

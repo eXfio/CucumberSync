@@ -1,21 +1,81 @@
 package org.exfio.weavedroid;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
+import java.lang.IllegalArgumentException;
+import java.util.logging.Level;
 
-public class Log {
-	private static Logger LOGGER = null;
+public class Log extends org.exfio.weave.util.Log {
 
-	public static Logger getInstance() {
-		if ( LOGGER == null ) {
-			LOGGER = LoggerFactory.getLogger("org.exfio.weave");
-		}
-		return LOGGER;
+	public static Level toJavaUtilLevel(String level) throws IllegalArgumentException {
+		if ( level.toLowerCase().equals("error") ) {
+			return java.util.logging.Level.SEVERE;
+		} else if ( level.toLowerCase().equals("warn") ) {
+			return java.util.logging.Level.WARNING;		
+		} else if ( level.toLowerCase().equals("info") ) {
+			return java.util.logging.Level.INFO;
+		} else if ( level.toLowerCase().equals("debug") ) {
+			return java.util.logging.Level.FINE;
+		} else if ( level.toLowerCase().equals("trace") ) {
+			return java.util.logging.Level.FINER;
+		} else {
+			throw new IllegalArgumentException(String.format("Log level '%s' not recognised", level));
+		}	
 	}
+	
+	public static void init(String level) {
+		org.exfio.weave.util.Log.init(level);
+		
+		//Explicitly set level for default logger
+		
+		//Android logging has some peculiarities
+		//1) Apache commons logging defaults to java.util.logging on Android hence we need to set this level
+		java.util.logging.Logger.getLogger(logtag).setLevel(toJavaUtilLevel(level));
+		//java.util.logging.Logger.getLogger(logtag).setLevel(java.util.logging.Level.FINEST);
+		
+		//2) Log level not honoured by logcat hence we also need to set log level via adb
+		//$ adb shell setprop log.tag.LOGGER LEVEL
+		
+		//Enable http logging if level is debug or trace
+		if ( level.toLowerCase().matches("debug|trace") ) {
+			
+			//Apache HttpClient officially ported to Android as of v4.3 uses android logging directly hence need to use adb only
+			//$ adb shell setprop log.tag.HttpClient DEBUG			
+			
+			//Android vX fork of Apache HttpClient
+			java.util.logging.Logger.getLogger("httpclient.wire").setLevel(java.util.logging.Level.FINEST);
+			java.util.logging.Logger.getLogger("httpclient.wire.content").setLevel(java.util.logging.Level.FINEST);
+			java.util.logging.Logger.getLogger("httpclient.wire.header").setLevel(java.util.logging.Level.FINEST);
+			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
+			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.content", "debug");
+			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header", "debug");
 
-	public static void setLogLevel(String level) {
-		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", level);
-		//TODO - Set log level for Android
+			//Log level not honoured by logcat hence we also need to set log level via adb
+			//$ adb shell setprop log.tag.httpclient.wire.content DEBUG
+			//$ adb shell setprop log.tag.httpclient.wire.header DEBUG
+
+			//Android vY fork of Apache HttpClient
+			java.util.logging.Logger.getLogger("org.apache.http").setLevel(java.util.logging.Level.FINEST);
+			java.util.logging.Logger.getLogger("org.apache.http.wire").setLevel(java.util.logging.Level.FINEST);
+			java.util.logging.Logger.getLogger("org.apache.http.headers").setLevel(java.util.logging.Level.FINEST);			 
+			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "debug");
+			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "debug");
+			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers", "debug");
+
+			//Log level not honoured by logcat hence we also need to set log level via adb
+			//$ adb shell setprop log.tag.org.apache.http.wire DEBUG
+			//$ adb shell setprop log.tag.org.apache.http.headers DEBUG
+		}		
+	}
+	
+	public static void setLogLevel(String logger, String level) {
+		org.exfio.weave.util.Log.setLogLevel(logger, level);
+
+		//Android logging has some peculiarities
+		//1) Apache commons logging defaults to java.util.logging on Android hence we need to set this level
+		java.util.logging.Logger.getLogger(logger).setLevel(toJavaUtilLevel(level));
+		//java.util.logging.Logger.getLogger(logger).setLevel(java.util.logging.Level.FINEST);
+		
+		//2) Log level not honoured by logcat hence we also need to set log level via adb
+		//$ adb shell setprop log.tag.LOGGER LEVEL
 	}
 
 }
