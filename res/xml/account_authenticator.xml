@@ -1,0 +1,6 @@
+<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accountType="weave.exfio.org"
+    android:icon="@drawable/ic_launcher"
+    android:label="@string/exfio_account_type"
+    android:smallIcon="@drawable/ic_launcher"
+    android:accountPreferences="@xml/account_prefs" />

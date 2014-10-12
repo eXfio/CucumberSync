@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <Preference android:title="@string/weavedroid_help" >
+        <intent
+            android:targetPackage="org.exfio.weavedroid"
+            android:targetClass="org.exfio.weavedroid.MainActivity"
+            android:action="ACTION_VIEW" />
+    </Preference>
+
+</PreferenceScreen>
