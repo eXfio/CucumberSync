@@ -53,19 +53,26 @@ public class SyncManager {
 		
 		// PHASE 2A: check if there's a reason to do a sync with remote (= forced sync or remote CTag changed)
 		boolean fetchCollection = false;
-		
+
+		Double remoteModified = null;
+		try {
+			remoteModified = remote.getModifiedTime();
+		} catch (NotFoundException e) {
+			//No exfiocontacts entries			
+		}
+
 		if (manualSync) {
 			Log.i(TAG, "Synchronization forced");
 			fetchCollection = true;
 		} else if (syncResult.stats.numEntries > 0) {
 			Log.i(TAG, "Local changes found");
 			fetchCollection = true;
-		} else if (remote.getModifiedTime() == null || remote.getModifiedTime() != local.getModifiedTime()) {
+		} else if (remoteModified == null || remoteModified != local.getModifiedTime()) {
 			Log.i(TAG, "Remote changes found");
 			fetchCollection = true;
 		}
-
-		Log.d(TAG, String.format("local mod time: %.02f, remote mod time: %.02f", local.getModifiedTime(), remote.getModifiedTime()));
+				
+		Log.d(TAG, String.format("local mod time: %.02f, remote mod time: %.02f", local.getModifiedTime(), remoteModified));
 		
 		if (!fetchCollection) {
 			Log.i(TAG, "No local or remote changes, no need to sync");
@@ -108,8 +115,14 @@ public class SyncManager {
 
 		// update collection CTag
 		Log.i(TAG, "Sync complete, fetching new modified time");
-		local.setModifiedTime(remote.getModifiedTime());
-		local.commit();
+		try {
+			remoteModified = remote.getModifiedTime();
+			local.setModifiedTime(remote.getModifiedTime());
+		} catch (NotFoundException e) {
+			//No exfiocontacts entries
+		} finally {
+			local.commit();			
+		}
 	}
 	
 	

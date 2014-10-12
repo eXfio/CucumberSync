@@ -39,7 +39,7 @@ public abstract class WeaveCollection<T extends Resource> {
 	
 	/* collection operations */
 	
-	public Double getModifiedTime() throws WeaveException {
+	public Double getModifiedTime() throws WeaveException, NotFoundException {
 		if ( colinfo == null ) {
 			colinfo = weaveClient.getCollectionInfo(collection);
 		}

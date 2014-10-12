@@ -43,7 +43,7 @@ import org.exfio.weavedroid.R;
 public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 	String protocol;
 	
-	TextView textHttpWarning;
+	TextView textHttpWarning, labelSyncKey;
 	EditText editBaseURL, editUserName, editPassword, editSyncKey;
 	Spinner spnrProtocol;
 	Button btnNext;
@@ -82,27 +82,28 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 		editPassword = (EditText) v.findViewById(R.id.password);
 		editPassword.addTextChangedListener(this);
 		
+		labelSyncKey = (TextView) v.findViewById(R.id.synckeylabel);
 		editSyncKey = (EditText) v.findViewById(R.id.synckey);
 		editSyncKey.addTextChangedListener(this);
 		
 		// hook into action bar
 		setHasOptionsMenu(true);
 
-		//FIXME DEBUG only
-		spnrProtocol.setSelection(0);
-        
+		//TODO - Move synckey to manual configuration fragment
+		labelSyncKey.setVisibility(View.INVISIBLE);
+		editSyncKey.setVisibility(View.INVISIBLE);
+
 		//Dev environment
+		//spnrProtocol.setSelection(0);
 		//editBaseURL.setText("argent.local:8081");
 		//editUserName.setText("gerry");
 		//editPassword.setText("test1234");
-		//editSyncKey.setText("7-ch6pu-6teey-36ndf-gwsex-93uza");
         
+		//FIXME - Debug only
 		//ownCloud environment
+		spnrProtocol.setSelection(0);
 		editBaseURL.setText("cloud.kaleido.com.au/remote.php/mozilla_sync/");
-		editUserName.setText("gerry");
-		editPassword.setText("test1234");
-		//editSyncKey.setText("E7NEP9G26C7EF33KUFDZENHW94");
-		
+        
 		return v;
 	}
 

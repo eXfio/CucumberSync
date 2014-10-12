@@ -238,9 +238,6 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 				
 					Log.i(TAG, String.format("Requesting client auth for client '%s'", clientName));
 					
-					//FIXME - DEBUG only
-					auth.setPbkdf2Iterations(1000);
-					
 					auth.requestClientAuth(clientName, serverInfo.getPassword(), databasePath);
 					String authCode = auth.getAuthCode();
 					

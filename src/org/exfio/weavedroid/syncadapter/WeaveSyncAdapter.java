@@ -155,16 +155,9 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 
 			ClientAuth auth = new ClientAuth(weaveClient, databasePath);
 
-			Log.d(TAG, String.format("Client auth before - authcode: %s, status: %s, auth by: %s", auth.getAuthCode(), auth.getAuthStatus(), auth.getAuthBy()));
-
-			//FIXME - DEBUG only
-			auth.setPbkdf2Iterations(1000);
-			
 			String curStatus = auth.getAuthStatus();
 			messages = auth.processClientAuthMessages();
 			String newStatus = auth.getAuthStatus();
-
-			Log.d(TAG, String.format("Client auth after - authcode: %s, status: %s, auth by: %s", auth.getAuthCode(), auth.getAuthStatus(), auth.getAuthBy()));
 
 			if ( curStatus != null && curStatus.equals("pending") ) {
 				

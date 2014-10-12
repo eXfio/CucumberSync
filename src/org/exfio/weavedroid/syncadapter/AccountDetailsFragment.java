@@ -47,9 +47,6 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 		editAccountName = (EditText)v.findViewById(R.id.account_name);
 		editAccountName.addTextChangedListener(this);
 
-		//DEBUG only
-		editAccountName.setText("Gerry Test");
-		
 		setHasOptionsMenu(true);
 		return v;
 	}

@@ -285,9 +285,6 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 			throw new WeaveException("Couldn't load SQL driver", e);
 		}
 		
-		//FIXME - DEBUG only
-		auth.setPbkdf2Iterations(1000);
-
 		return auth;
 	}
 
