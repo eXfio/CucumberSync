@@ -155,6 +155,8 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 			try {
 				// Query weave sync server
 				
+				//FIXME - Register account if required
+				
 				// (1/4) Autodiscover weave sync storage version				
 				AccountParams adParams = new AccountParams();
 				adParams.baseURL  = serverInfo.getBaseURL();
@@ -229,6 +231,10 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
                 String databasePath = getContext().getDatabasePath(serverInfo.getGuid()).getAbsolutePath();
                 
 				ClientAuth auth = new ClientAuth(weaveClient);
+
+				if ( !auth.isInitialised() && weaveClient.isInitialised() && !weaveClient.isAuthorised() ) {
+					throw new WeaveException(String.format("Can't initalise weave account. Weave client is not authorised.", weaveClient.getStorageVersion())); 
+				}
 
 				if ( !auth.isInitialised() ) {
 					

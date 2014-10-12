@@ -14,7 +14,7 @@
 package org.exfio.weavedroid;
 
 public class Constants {
-	public static final String APP_VERSION            = "0.1-alpha";
+	public static final String APP_VERSION            = "1.0-alpha2";
 	public static final String ACCOUNT_TYPE           = "weave.exfio.org";	
 	public static final String META_COLLECTION        = "meta";
 	public static final String META_ID                = "exfio";
