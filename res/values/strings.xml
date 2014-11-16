@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">WeaveDroid</string>
+    <string name="app_name">Cucumber Sync</string>
     <string name="menu_settings">Settings</string>
 
     <string-array name="http_protocols">
@@ -16,7 +16,7 @@
     <string name="next">Next</string>
     <string name="help">Help</string>
     <string name="invalid_base_url">Invalid base URL: </string>
-    <string name="title_select_collections">WeaveDroid: Select collections</string>
+    <string name="title_select_collections">Cucumber Sync: Select collections</string>
     <string name="exception_io">I/O error: %s</string>
     <string name="exception_uri_syntax">Invalid URI: %s</string>
     <string name="exception_incapable_resource">Missing capabilities: %s</string>
@@ -34,37 +34,36 @@
     <string name="select_calendars">Select your calendars:</string>
     <string name="auth_preemptive">Preemptive authentication (recommended, but incompatible with Digest auth)</string>
     
-    <string name="weavedroid_help">WeaveDroid Help</string>
+    
     <string name="show_sync_settings">Manage sync accounts</string>
-    <string name="show_website">WeaveDroid Web site</string>
+    <string name="show_website">Cucumber Sync Web site</string>
     <string name="html_main_workaround"><![CDATA[
-		<p>Thank you for buying WeaveDroid via Google Play and thus supporting the project. Unfortunately, there are two issues with Google Play:</p>
+		<p>Thank you for buying Cucumber Sync via Google Play and thus supporting the project. Unfortunately, there are two issues with Google Play:</p>
 		
 		<h2>1. Accounts may be gone after a reboot</h2>
-		<p>You may encounter the problem that all your <strong>WeaveDroid accounts (including contacts and events) are gone
+		<p>You may encounter the problem that all your <strong>Cucumber Sync accounts (including contacts and events) are gone
         after rebooting your device</strong>. The reason is a <a href="https://code.google.com/p/android/issues/detail?id=34880">bug in Android</a>
         that causes accounts of paid apps to be removed on start-up because the (encrypted) APK files are
         loaded <i>after</i> checking for orphaned accounts.</p>
         <p>Affected users:<br/>
-        * all Android 4.1 users who have got WeaveDroid from Play Store;<br/>
-        * Android 4.2 users who have got WeaveDroid from Play Store only with certain devices (for instance, most Samsung devices)</p>
+        * all Android 4.1 users who have got Cucumber Sync from Play Store;<br/>
+        * Android 4.2 users who have got Cucumber Sync from Play Store only with certain devices (for instance, most Samsung devices)</p>
         
-        <h2>2. Accounts may be gone after upgrading WeaveDroid</h2>
-        <p>You may encounter the problem that all your <strong>WeaveDroid accounts (including contacts and events) when Play Store
-        updates WeaveDroid</strong>. The reason is <a href="https://code.google.com/p/android/issues/detail?id=66905">another bug in Android</a>
+        <h2>2. Accounts may be gone after upgrading Cucumber Sync</h2>
+        <p>You may encounter the problem that all your <strong>Cucumber Sync accounts (including contacts and events) when Play Store
+        updates Cucumber Sync</strong>. The reason is <a href="https://code.google.com/p/android/issues/detail?id=66905">another bug in Android</a>
         that causes accounts of paid apps to be removed when upgrading for a similar reason.</p>
-        <p>Affected users: some Android 4.4.2 users who have got WeaveDroid from Play Store (known for Nexus devices and Moto G)</p>
+        <p>Affected users: some Android 4.4.2 users who have got Cucumber Sync from Play Store (known for Nexus devices and Moto G)</p>
         
-        <p><strong>If you\'re affected by one of these bugs, please <a href="market://details?id=at.bitfire.WeaveDroid.jbworkaround">install the
-        WeaveDroid JB Workaround</a>.</strong></p>
+        <p><strong>If you\'re affected by one of these bugs, unfortunately there is currently no fix, however a workaround will be implemented before releasing a supported version.</strong></p>
     ]]></string>
     <string name="html_main_info"><![CDATA[
-       <h1>Welcome to WeaveDroid/%s!</h1>
+       <h1>Welcome to Cucumber Sync/%s!</h1>
        
-       <p>WeaveDroid is an Android 4+ sync adapter for self-hosted Mozilla Sync servers. To use it, just add a WeaveDroid account
-       for your Mozilla Sync server and your contacts will be synchronized in both directions.</p>
+       <p>Cucumber Sync is an Android 4+ sync provider that syncs Personal Information Management data Securely (PIMS, like the drink), i.e. contacts and calendars.</p>
+       <p>Cucumber Sync uses a self-hosted Mozilla Sync server as the back end, just add a Cucumber Sync account for your Mozilla Sync server and contacts saved using the Cucumber Sync Contacts Provider will be synchronised with the server. Add the Cucumber Sync account to additional devices to synchronise contacts across multiple devices securely.</p>
        
-       <p>For more information, please see the <a href="https://github.com/nickel-chrome/weavedroid">WeaveDroid site</a> hosted on GitHub.
+       <p>For more information, please see the <a href="https://github.com/nickel-chrome/CucumberSync">Cucumber Sync site</a> hosted on GitHub.
                      	   
 	   <h1>License</h1>
 	   This program and the accompanying materials are made available under the terms of the GNU Public License v3.0 which
@@ -74,7 +73,7 @@
 	   that are downloaded via these services.</p>
 	   	   
 	   <h2>Third-party libraries and dependencies</h2>
-	   <p>WeaveDroid builds on <a href="http://davdroid.bitfire.at?pk_campaign=davdroid-app&amp;pk_kwd=main-activity">DAVdroid</a> by Richard Hirner (<a href="http://www.bitfire.at">bitfire web engineering</a>).</p>
+	   <p>Cucumber Sync builds on <a href="http://davdroid.bitfire.at?pk_campaign=davdroid-app&amp;pk_kwd=main-activity">DAVdroid</a> by Richard Hirner (<a href="http://www.bitfire.at">bitfire web engineering</a>).</p>
 	   
 	   <p>
 	    Other third party libraries include:<br/>
@@ -92,12 +91,12 @@
     <string name="account_name_info">"Use your email address as account name because Android will use the account name as ORGANIZER field for events you create. You can't have two accounts with the same name.</string>
     <string name="read_only">read-only</string>
 
-    <string name="exfio_account_type">Weave Sync</string>
-    <string name="exfio_account_name_hint">My Weave Sync Account</string>
-    <string name="exception_exfio">Weave Sync error: %s</string>
+    
+    
+    <string name="exception_weavedroid">Cucumber Sync error: %s</string>
     <string name="synckey">Sync Key:</string>
     <string name="received_ca_authcode">Enter auth code here to approve</string>
     <string name="received_ca_reject">Reject</string>
-    <string name="received_ca_approve">Approve</string>
+    <string name="received_ca_approve">Approve</string><string name="weavedroid_account_type">Cucumber Sync</string><string name="weavedroid_account_name_hint">My Cucumber Sync Account</string><string name="weavedroid_help">Cucumber Sync Help</string>
 
 </resources>

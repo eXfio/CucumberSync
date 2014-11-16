@@ -265,7 +265,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 								
 			} catch (Exception e) {
 				Log.e(TAG, "Error while querying server info", e);
-				serverInfo.setErrorMessage(getContext().getString(R.string.exception_exfio, e.getLocalizedMessage()));
+				serverInfo.setErrorMessage(getContext().getString(R.string.exception_weavedroid, e.getLocalizedMessage()));
 			}
 			
 			return serverInfo;
