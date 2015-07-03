@@ -30,15 +30,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.exfio.weave.InvalidStorageException;
 import org.exfio.weave.WeaveException;
-import org.exfio.weave.client.AccountParams;
+import org.exfio.weave.account.exfiopeer.AuthcodeVerificationFailedException;
+import org.exfio.weave.account.exfiopeer.ExfioPeerV1;
+import org.exfio.weave.account.legacy.LegacyV5AccountParams;
 import org.exfio.weave.client.WeaveClient;
 import org.exfio.weave.client.WeaveClientFactory;
-import org.exfio.weave.client.WeaveClientV5Params;
-import org.exfio.weave.ext.clientauth.AuthcodeVerificationFailedException;
-import org.exfio.weave.ext.clientauth.ClientAuth;
-import org.exfio.weavedroid.syncadapter.AccountSettings;
+import org.exfio.weavedroid.syncadapter.ExfioPeerAccountSettings;
 import org.exfio.weavedroid.util.SystemUtils;
 
 public class ReceivedClientAuth extends Activity implements LoaderCallbacks<WeaveDroidReturnValue> {
@@ -130,13 +128,11 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 
 	}
 
-	@Override
 	public Loader<WeaveDroidReturnValue> onCreateLoader(int id, Bundle args) {
 		Log.d(TAG, "onCreateLoader()");
 		return new ClientAuthResponseLoader(this, args);
 	}
 
-	@Override
 	public void onLoadFinished(Loader<WeaveDroidReturnValue> loader, WeaveDroidReturnValue retval) {
 		Log.d(TAG, "onLoadFinished()");
 
@@ -154,7 +150,6 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 		}
 	}
 
-	@Override
 	public void onLoaderReset(Loader<WeaveDroidReturnValue> loader) {
 		Log.d(TAG, "onLoaderReset()");
 	}
@@ -187,7 +182,7 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 			Log.d(TAG, String.format("Client Auth Response - account: %s, sessionid: %s, approved: %s, authcode: %s", accountName, sessionId, Boolean.toString(approved), authCode));
 
 			try {
-				ClientAuth auth = ReceivedClientAuth.getClientAuth(this.getContext(), accountName);
+				ExfioPeerV1 auth = ReceivedClientAuth.getClientAuth(this.getContext(), accountName);
 				
 	    		if ( approved ) {
 					auth.approveClientAuth(sessionId, authCode);
@@ -207,7 +202,7 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 		Account accountFound = null;
 		
 		AccountManager am = AccountManager.get(context);
-		Account[] accounts = am.getAccountsByType(Constants.ACCOUNT_TYPE);
+		Account[] accounts = am.getAccountsByType(Constants.ACCOUNT_TYPE_EXFIOPEER);
 
 		for (Account account: accounts) {
 			if ( account.name.equals(accountName) ) {
@@ -217,16 +212,16 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 		}
 		
 		if (accountFound == null) {
-			throw new AccountNotFoundException(String.format("Couldn't find account '%s' of type '%s'", accountName, Constants.ACCOUNT_TYPE));
+			throw new AccountNotFoundException(String.format("Couldn't find account '%s' of type '%s'", accountName, Constants.ACCOUNT_TYPE_EXFIOPEER));
 		}
 		
 		return accountFound;
 	}
 	
-	public static ClientAuth getClientAuth(Context context, String accountName) throws WeaveException, AccountNotFoundException, InvalidAccountException {
+	public static ExfioPeerV1 getClientAuth(Context context, String accountName) throws WeaveException, AccountNotFoundException, InvalidAccountException {
 		
 		Account account = getAccount(context, accountName);
-		AccountSettings settings = new AccountSettings(context, account);
+		ExfioPeerAccountSettings settings = new ExfioPeerAccountSettings(context, account);
 		
 		//DEBUG only
 		if ( SystemUtils.isDebuggable(context) ) {
@@ -235,40 +230,24 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 
 		Log.d(TAG, String.format("Weave credentials - username: %s, password: %s, synckey: %s", settings.getUserName(), settings.getPassword(), settings.getSyncKey()));
 		
-		//get weave account params		
-		AccountParams params = new AccountParams();
-		params.baseURL  = settings.getBaseURL();
-		params.user     = settings.getUserName();
-		params.password = settings.getPassword();
+		//get weave account params
+		LegacyV5AccountParams  params = new LegacyV5AccountParams();
+		params.accountServer = settings.getBaseURL();
+		params.user          = settings.getUserName();
+		params.password      = settings.getPassword();
+		params.syncKey       = settings.getSyncKey();
 		
-		WeaveClientFactory.StorageVersion storageVersion = null;
+		//Initialise weave client from account params
+		WeaveClient weaveClient = null;
+		
 		try {
-			storageVersion = WeaveClientFactory.autoDiscoverStorageVersion(params);
-		} catch (InvalidStorageException e) {
-			//Storage not initialised use default
-			storageVersion = WeaveClientFactory.getDefaultStorageVersion();
-		}
-
-		// (2/4) Initialise weave client
-		AccountParams weaveParams = null;
-		
-		if ( storageVersion == WeaveClientFactory.StorageVersion.v5 ){
-			//Only v5 is currently supported
-			WeaveClientV5Params v5Params = new WeaveClientV5Params();
-			v5Params.baseURL  = settings.getBaseURL();
-			v5Params.user     = settings.getUserName();
-			v5Params.password = settings.getPassword();
-			v5Params.syncKey  = settings.getSyncKey();
-			weaveParams = v5Params;
-		} else {
-			throw new WeaveException(String.format("Storage version '%s' not supported", WeaveClientFactory.storageVersionToString(storageVersion))); 
+			weaveClient = WeaveClientFactory.getInstance(params);
+		} catch (WeaveException e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
 		}
 		
-		WeaveClient weaveClient = WeaveClientFactory.getInstance(storageVersion);
-		weaveClient.init(weaveParams);
-		
-		
-		ClientAuth auth = null;
+		ExfioPeerV1 auth = null;
 		
 		try {	
 			//Initialise sqldroid jdbc provider
@@ -277,7 +256,7 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 
 			Log.d(TAG, String.format("Database path: %s", databasePath));
 
-			auth = new ClientAuth(weaveClient, databasePath);
+			auth = new ExfioPeerV1(weaveClient, databasePath);
 
 			Log.d(TAG, String.format("Client auth before - authcode: %s, status: %s, auth by: %s", auth.getAuthCode(), auth.getAuthStatus(), auth.getAuthBy()));
 

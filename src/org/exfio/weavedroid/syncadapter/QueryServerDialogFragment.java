@@ -13,14 +13,12 @@
  ******************************************************************************/
 package org.exfio.weavedroid.syncadapter;
 
+
+import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.SecureRandom;
-import java.sql.SQLException;
 
 import android.app.DialogFragment;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.bluetooth.BluetoothAdapter;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Loader;
@@ -32,17 +30,14 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.exfio.weave.client.AccountParams;
-import org.exfio.weave.InvalidStorageException;
 import org.exfio.weave.WeaveException;
+import org.exfio.weave.account.WeaveAccount;
+import org.exfio.weave.account.exfiopeer.ExfioPeerV1;
+import org.exfio.weave.account.fxa.FxAccount;
+import org.exfio.weave.account.fxa.FxAccountParams;
+import org.exfio.weave.account.legacy.LegacyV5AccountParams;
 import org.exfio.weave.client.WeaveClient;
-import org.exfio.weave.client.WeaveClientCLI;
 import org.exfio.weave.client.WeaveClientFactory;
-import org.exfio.weave.client.WeaveClientV5Params;
-import org.exfio.weave.client.WeaveCollectionInfo;
-import org.exfio.weave.ext.clientauth.ClientAuth;
-import org.exfio.weave.ext.comm.Comms;
-import org.exfio.weave.util.Base64;
 import org.exfio.weave.util.OSUtils;
 import org.exfio.weavedroid.Constants;
 import org.exfio.weavedroid.syncadapter.AccountDetailsFragment;
@@ -52,13 +47,6 @@ import org.exfio.weavedroid.R;
 public class QueryServerDialogFragment extends DialogFragment implements LoaderCallbacks<ServerInfo> {
 	private static final String TAG = "exfio.QueryServerDialogFragment";
 
-	public static final String
-		EXTRA_BASE_URL        = "base_uri",
-		EXTRA_USER_NAME       = "user_name",
-		EXTRA_PASSWORD        = "password",
-		EXTRA_SYNC_KEY        = "sync_key",
-		EXTRA_AUTH_PREEMPTIVE = "auth_preemptive";
-	
 	ProgressBar progressBar;
 	
 	@Override
@@ -82,13 +70,11 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 		return v;
 	}
 
-	@Override
 	public Loader<ServerInfo> onCreateLoader(int id, Bundle args) {
 		Log.d(TAG, "onCreateLoader()");
 		return new ServerInfoLoader(getActivity(), args);
 	}
 
-	@Override
 	public void onLoadFinished(Loader<ServerInfo> loader, ServerInfo serverInfo) {
 		Log.d(TAG, "onLoadFinished()");
 		
@@ -111,7 +97,6 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 		getDialog().dismiss();
 	}
 
-	@Override
 	public void onLoaderReset(Loader<ServerInfo> loader) {
 		Log.d(TAG, "onLoaderReset()");
 	}
@@ -135,137 +120,216 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 				org.exfio.weavedroid.util.Log.init("debug");
 			}
 			
-			//Build unique account guid that is also valid filename
+			String accountType = args.getString(android.accounts.AccountManager.KEY_ACCOUNT_TYPE);
+			
 			String guid = null;
-			try {
-				guid = Comms.generateAccountGuid(args.getString(EXTRA_BASE_URL), args.getString(EXTRA_USER_NAME));
-			} catch (WeaveException e) {
-				//Fail quietly - shouldn't happen
-			}
-			
-			ServerInfo serverInfo = new ServerInfo(
-				guid,
-				args.getString(EXTRA_BASE_URL),
-				args.getString(EXTRA_USER_NAME),
-				args.getString(EXTRA_PASSWORD),
-				args.getString(EXTRA_SYNC_KEY),
-				args.getBoolean(EXTRA_AUTH_PREEMPTIVE)
-			);
-			
-			try {
-				// Query weave sync server
+			WeaveAccount account = null;
+			String errorMessage = null;
+
+			if ( accountType.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
+				//Initialise FxA account
+
+				//TODO - Support account creation
 				
-				//FIXME - Register account if required
-				
-				// (1/4) Autodiscover weave sync storage version				
-				AccountParams adParams = new AccountParams();
-				adParams.baseURL  = serverInfo.getBaseURL();
-				adParams.user     = serverInfo.getUser();
-				adParams.password = serverInfo.getPassword();
-				
-				WeaveClientFactory.StorageVersion storageVersion = null;
+				//Get account params
+				String accountServer = args.getString(FxAccountAccountSettings.KEY_ACCOUNT_SERVER);
+				String tokenServer   = args.getString(FxAccountAccountSettings.KEY_TOKEN_SERVER);
+				String username      = args.getString(FxAccountAccountSettings.KEY_USERNAME);
+				String password      = args.getString(FxAccountAccountSettings.KEY_PASSWORD);
+									
 				try {
-					storageVersion = WeaveClientFactory.autoDiscoverStorageVersion(adParams);
-				} catch (InvalidStorageException e) {
-					//Storage not initialised use default
-					storageVersion = WeaveClientFactory.getDefaultStorageVersion();
-				}
-
-				// (2/4) Initialise weave client
-				AccountParams weaveParams = null;
 				
-				if ( storageVersion == WeaveClientFactory.StorageVersion.v5 ){
-					//Only v5 is currently supported
-					WeaveClientV5Params v5Params = new WeaveClientV5Params();
-					v5Params.baseURL  = serverInfo.getBaseURL();
-					v5Params.user     = serverInfo.getUser();
-					v5Params.password = serverInfo.getPassword();
-					v5Params.syncKey  = serverInfo.getSyncKey();
-					weaveParams = v5Params;
-				} else {
-					throw new WeaveException(String.format("Storage version '%s' not supported", WeaveClientFactory.storageVersionToString(storageVersion))); 
-				}
-				
-				WeaveClient weaveClient = WeaveClientFactory.getInstance(storageVersion);
-				weaveClient.init(weaveParams);
-
-				// (3/4) Initialise weave meta data
-				if ( !weaveClient.isInitialised() ) {
-					weaveClient.initServer();
-					
-					//Save synckey
-					if ( weaveClient.getStorageVersion() == WeaveClientFactory.StorageVersion.v5 ){
-						//Only v5 is currently supported
-						
-						serverInfo = new ServerInfo(
-							serverInfo.getGuid(),
-							serverInfo.getBaseURL(),
-							serverInfo.getUser(),
-							serverInfo.getPassword(),
-							((WeaveClientV5Params)weaveClient.getClientParams()).syncKey,
-							serverInfo.isAuthPreemptive()
-						);
-					} else {
-						throw new WeaveException(String.format("Storage version '%s' not supported", weaveClient.getStorageVersion())); 
+					//Validate account params
+					if (
+						(accountServer == null || accountServer.isEmpty())
+						||
+						(tokenServer == null || tokenServer.isEmpty())
+						||
+						(username == null || username.isEmpty())
+						||
+						(password == null || password.isEmpty())
+					) {
+						throw new WeaveException("account-server, token-server, username and password are required parameters for account registration");
 					}
-				}
-				
-				// (4/5) Initialise eXfio meta data OR request authorisation for existing client
+		
+					//Validate URI syntax
+					try {
+						URI.create(accountServer);
+						URI.create(tokenServer);
+					} catch (IllegalArgumentException e) {
+						throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", accountServer));
+					}
 
-				//Initialise sqldroid jdbc provider
-				Class.forName("org.sqldroid.SQLDroidDriver");
-				
-				String clientName = OSUtils.getPrettyName();
-				
-				//Create database file if it does not already exist
-            	android.database.sqlite.SQLiteDatabase database = null;
-                try {
-                	database = getContext().openOrCreateDatabase(serverInfo.getGuid(), Context.MODE_PRIVATE, null);
-                } catch(Exception e) {
-                	Log.e(TAG, e.getMessage());
-                } finally {
-                	if ( database != null ) {
-                		database.close();
-                	}
-                }
-                String databasePath = getContext().getDatabasePath(serverInfo.getGuid()).getAbsolutePath();
-                
-				ClientAuth auth = new ClientAuth(weaveClient);
-
-				if ( !auth.isInitialised() && weaveClient.isInitialised() && !weaveClient.isAuthorised() ) {
-					throw new WeaveException(String.format("Can't initalise weave account. Weave client is not authorised.", weaveClient.getStorageVersion())); 
-				}
-
-				if ( !auth.isInitialised() ) {
+					//Initialise account
+					FxAccountParams fxaParams = new FxAccountParams();
+					fxaParams.accountServer  = accountServer;
+					fxaParams.tokenServer    = tokenServer;
+					fxaParams.user           = username;
+					fxaParams.password       = password;
 					
-					Log.i(TAG, "Initialising eXfio meta data");
-					auth.initClientAuth(clientName, databasePath);
-				} else {
+					account = new FxAccount();
+					account.init(fxaParams);
+					
+				} catch (Exception e) {
+					Log.e(TAG, "Error while querying server info", e);
+					errorMessage = getContext().getString(R.string.exception_weavedroid, e.getLocalizedMessage());
+				}
+
+			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
+				//Initialise LegacyV5 account
+
+				//TODO - Support account creation
+
+				//Get account params
+				String accountServer = args.getString(LegacyV5AccountSettings.KEY_BASE_URL);
+				String username      = args.getString(LegacyV5AccountSettings.KEY_USERNAME);
+				String password      = args.getString(LegacyV5AccountSettings.KEY_PASSWORD);
+				String synckey       = args.getString(LegacyV5AccountSettings.KEY_SYNCKEY);				
+									
+				try {					
 				
+					//Validate account params
+					if (
+						(accountServer == null || accountServer.isEmpty())
+						||
+						(username == null || username.isEmpty())
+						||
+						(password == null || password.isEmpty())
+						||
+						(synckey == null || synckey.isEmpty())
+					) {
+						throw new WeaveException("account-server, username, password and synckey are required parameters for account registration");
+					}
+									
+					LegacyV5AccountParams adParams = new LegacyV5AccountParams();
+					adParams.accountServer = accountServer;
+					adParams.user          = username;
+					adParams.password      = password;				
+					adParams.syncKey       = synckey;
+									
+					WeaveClient weaveClient = WeaveClientFactory.getInstance(adParams);
+
+					// Check weave account is initialised
+					if ( !weaveClient.isInitialised() ) {
+						throw new WeaveException(String.format("Weave account '%s@%s' not initialised.", adParams.user, adParams.accountServer)); 
+					}
+					
+				} catch (Exception e) {
+					Log.e(TAG, "Error while querying server info", e);
+					errorMessage = getContext().getString(R.string.exception_weavedroid, e.getLocalizedMessage());
+				}
+
+			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_EXFIOPEER) ) {
+				//Initialise eXfio Peer account
+
+				//TODO - Support account creation
+
+				//Get account params
+				String accountServer = args.getString(LegacyV5AccountSettings.KEY_BASE_URL);
+				String username      = args.getString(LegacyV5AccountSettings.KEY_USERNAME);
+				String password      = args.getString(LegacyV5AccountSettings.KEY_PASSWORD);
+									
+				try {					
+				
+					//Validate account params
+					if (
+						(accountServer == null || accountServer.isEmpty())
+						||
+						(username == null || username.isEmpty())
+						||
+						(password == null || password.isEmpty())
+					) {
+						throw new WeaveException("account-server, username and password are required parameters for account registration");
+					}
+									
+					LegacyV5AccountParams adParams = new LegacyV5AccountParams();
+					adParams.accountServer = accountServer;
+					adParams.user          = username;
+					adParams.password      = password;				
+									
+					WeaveClient weaveClient = WeaveClientFactory.getInstance(adParams);
+					
+					// Check underlying weave account is initialised
+					if ( !weaveClient.isInitialised() ) {
+						throw new WeaveException(String.format("Weave account '%s@%s' not initialised.", adParams.user, adParams.accountServer)); 
+					}
+
+					ExfioPeerV1 auth = new ExfioPeerV1(weaveClient);
+
+					// Check exfio peer account is initialised
+					if ( !auth.isInitialised() ) {
+						throw new WeaveException(String.format("eXfio Peer account '%s@%s' not initialised.", adParams.user, adParams.accountServer)); 
+					}
+
+					//Initialise sqldroid jdbc provider
+					Class.forName("org.sqldroid.SQLDroidDriver");
+					
+					String clientName = OSUtils.getPrettyName();
+			
+					//Build unique account guid that is also valid filename
+					guid = WeaveAccount.generateAccountGuid(accountServer, username);
+					
+					//Create database file if it does not already exist
+					
+	            	android.database.sqlite.SQLiteDatabase database = null;
+	                try {
+	                	database = getContext().openOrCreateDatabase(guid, Context.MODE_PRIVATE, null);
+	                } catch(Exception e) {
+	                	Log.e(TAG, e.getMessage());
+	                } finally {
+	                	if ( database != null ) {
+	                		database.close();
+	                	}
+	                }
+	                String databasePath = getContext().getDatabasePath(guid).getAbsolutePath();
+	                
+					// Request authorisation from existing client
 					Log.i(TAG, String.format("Requesting client auth for client '%s'", clientName));
-					
-					auth.requestClientAuth(clientName, serverInfo.getPassword(), databasePath);
+						
+					auth.requestClientAuth(clientName, password, databasePath);
 					String authCode = auth.getAuthCode();
-					
+						
 					Log.i(TAG, String.format("Client auth request pending with auth code '%s'", authCode));
+
+				} catch (Exception e) {
+					Log.e(TAG, "Error while querying server info", e);
+					errorMessage = getContext().getString(R.string.exception_weavedroid, e.getLocalizedMessage());
 				}
 				
-				// (5/5) Initialise exfiocontacts collection
-				ServerInfo.ResourceInfo addressbook = new ServerInfo.ResourceInfo(
-					Constants.ResourceType.ADDRESS_BOOK,
-					false,
-					Constants.ADDRESSBOOK_COLLECTION,
-					"WeaveDroid Contacts",
-					"WeaveDroid Contacts",
-					null
-				);
-				addressbook.setEnabled(true);
+			} else {
+				Log.e(TAG, String.format("Account type '%s' not supported", accountType));
+				return null;
+			}
+
+			ServerInfo serverInfo = new ServerInfo();
+			
+			if ( errorMessage == null ) {
 				
-				serverInfo.setAddressBook(addressbook);	
-								
-			} catch (Exception e) {
-				Log.e(TAG, "Error while querying server info", e);
-				serverInfo.setErrorMessage(getContext().getString(R.string.exception_weavedroid, e.getLocalizedMessage()));
+				try {
+					
+					serverInfo.setAccountType(accountType);
+					serverInfo.setGuid(guid);
+					serverInfo.setAccountParams(account.accountParamsToProperties());
+
+					// Initialise exfiocontacts collection
+					ServerInfo.ResourceInfo addressbook = new ServerInfo.ResourceInfo(
+						Constants.ResourceType.ADDRESS_BOOK,
+						false,
+						Constants.ADDRESSBOOK_COLLECTION,
+						"CucumberSync Contacts",
+						"CucumberSync Contacts",
+						null
+					);
+					addressbook.setEnabled(true);
+					
+					serverInfo.setAddressBook(addressbook);	
+
+				} catch (IOException e) {
+					serverInfo.setErrorMessage(e.getMessage());					
+				}
+				
+			} else {
+				serverInfo.setErrorMessage(errorMessage);
 			}
 			
 			return serverInfo;

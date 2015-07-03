@@ -16,10 +16,10 @@ package org.exfio.weavedroid.resource;
 import java.util.List;
 import java.util.LinkedList;
 
-import org.exfio.weave.client.NotFoundException;
-import org.exfio.weave.client.WeaveClient;
-import org.exfio.weave.client.WeaveBasicObject;
 import org.exfio.weave.WeaveException;
+import org.exfio.weave.client.WeaveClient;
+import org.exfio.weave.storage.NotFoundException;
+import org.exfio.weave.storage.WeaveBasicObject;
 
 public class WeaveAddressBook extends WeaveCollection<Contact> {
 	

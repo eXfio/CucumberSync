@@ -13,9 +13,11 @@
  ******************************************************************************/
 package org.exfio.weavedroid;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.Html;
@@ -27,6 +29,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.exfio.weavedroid.R;
+
 import org.exfio.weavedroid.util.SystemUtils;
 
 public class MainActivity extends Activity {
@@ -62,8 +65,22 @@ public class MainActivity extends Activity {
 	}
 
 	
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	public void addAccount(MenuItem item) {
 		Intent intent = new Intent(Settings.ACTION_ADD_ACCOUNT);
+		
+		//EXTRA_ACCOUNT_TYPES supported in JBMR2 and above
+	    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+			intent.putExtra(
+				Settings.EXTRA_ACCOUNT_TYPES,
+				new String[] {
+					Constants.ACCOUNT_TYPE_LEGACYV5
+					,Constants.ACCOUNT_TYPE_EXFIOPEER
+					,Constants.ACCOUNT_TYPE_FXACCOUNT
+				}
+			);
+	    }
+		
 		startActivity(intent);
 	}
 

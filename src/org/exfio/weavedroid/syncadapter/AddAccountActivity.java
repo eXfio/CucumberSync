@@ -14,7 +14,11 @@
 package org.exfio.weavedroid.syncadapter;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
+
+import org.exfio.weavedroid.Constants;
 import org.exfio.weavedroid.R;
 
 public class AddAccountActivity extends Activity {
@@ -25,9 +29,27 @@ public class AddAccountActivity extends Activity {
 		
 		setContentView(R.layout.add_account);
 		
+		Intent intent = getIntent();
+		String accountType = intent.getStringExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE);
+		
 		if (savedInstanceState == null) {	// first call
+			Fragment fragment = null;
+			String fragmentTag = null;
+			if ( accountType.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
+				fragment = new LegacyV5EnterCredentialsFragment();
+				fragmentTag = "enter_credentials_legacyv5";
+			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
+				fragment = new FxAccountEnterCredentialsFragment();
+				fragmentTag = "enter_credentials_fxaccount";
+			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_EXFIOPEER) ) {
+				fragment = new ExfioPeerEnterCredentialsFragment();
+				fragmentTag = "enter_credentials_exfiopeer";
+			} else {
+				throw new AssertionError(String.format("Account type '%s' not supported", accountType));
+			}
+			
 			getFragmentManager().beginTransaction()
-				.add(R.id.fragment_container, new EnterCredentialsFragment(), "enter_credentials")
+				.add(R.id.fragment_container, fragment, fragmentTag)
 				.commit();
 		}
 	}

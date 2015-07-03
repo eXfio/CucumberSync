@@ -32,26 +32,26 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.widget.Toast;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
 import org.exfio.weave.WeaveException;
+import org.exfio.weave.account.exfiopeer.ExfioPeerV1;
+import org.exfio.weave.account.exfiopeer.ClientAuthRequestMessage;
+import org.exfio.weave.account.exfiopeer.comm.Message;
+import org.exfio.weave.account.fxa.FxAccountParams;
+import org.exfio.weave.account.legacy.LegacyV5AccountParams;
 import org.exfio.weave.client.WeaveClient;
 import org.exfio.weave.client.WeaveClientFactory;
-import org.exfio.weave.client.WeaveClientV5Params;
-import org.exfio.weave.ext.clientauth.ClientAuth;
-import org.exfio.weave.ext.clientauth.ClientAuthRequestMessage;
-import org.exfio.weave.ext.comm.Message;
-import org.exfio.weavedroid.ReceivedClientAuth;
-import org.exfio.weavedroid.MainActivity;
-import org.exfio.weavedroid.PendingClientAuth;
+
 import org.exfio.weavedroid.R;
+import org.exfio.weavedroid.Constants;
+import org.exfio.weavedroid.ReceivedClientAuth;
+import org.exfio.weavedroid.PendingClientAuth;
 import org.exfio.weavedroid.resource.LocalCollection;
 import org.exfio.weavedroid.resource.LocalStorageException;
 import org.exfio.weavedroid.resource.WeaveCollection;
 import org.exfio.weavedroid.util.SystemUtils;
-
 
 public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter implements Closeable {
 	private final static String TAG = "exfio.WeaveSyncAdapter";
@@ -73,7 +73,6 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 		accountManager = AccountManager.get(context);
 	}
 	
-	@Override
 	public void close() {
 		// apparently may be called from a GUI thread
 		new AsyncTask<Void, Void, Void>() {
@@ -108,100 +107,163 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 		// set class loader for iCal4j ResourceLoader
 		Thread.currentThread().setContextClassLoader(getContext().getClassLoader());
 		
-		AccountSettings settings = new AccountSettings(getContext(), account);
-
-		//TODO - handle user defined Weave Storage version
-		
 		//DEBUG only
 		if ( SystemUtils.isDebuggable(getContext()) ) {
 			org.exfio.weavedroid.util.Log.init("debug");
 		}
-		
-		Log.d(TAG, String.format("Weave credentials - username: %s, password: %s, synckey: %s", settings.getUserName(), settings.getPassword(), settings.getSyncKey()));
-		
-		//get weave account params
-		WeaveClientV5Params params = new WeaveClientV5Params();
-		params.baseURL  = settings.getBaseURL();
-		params.user     = settings.getUserName();
-		params.password = settings.getPassword();
-		params.syncKey  = settings.getSyncKey();
-		
-		//TODO - validate weave account settings
-		if (params.baseURL == null) {
-			Log.e(TAG, "Weave account settings invalid");
-			return;
-		}
-		
-		//Initialise weave client
-		try {
-			weaveClient = WeaveClientFactory.getInstance(params);
-		} catch (WeaveException e) {
-			Log.e(TAG, e.getMessage());
-			closeWeaveClient();
-			return;
-		}
-		
-		Log.i(TAG, String.format("Checking messages"));
 
-		Message[] messages = null;
-		
-		try {
+		if ( account.type.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
 			
-			//Initialise sqldroid jdbc provider
-			Class.forName("org.sqldroid.SQLDroidDriver");
-            String databasePath = getContext().getDatabasePath(settings.getGuid()).getAbsolutePath();
+			FxAccountAccountSettings fxaSettings = new FxAccountAccountSettings(getContext(), account);
+			
+			Log.d(TAG, String.format("FxA credentials - username: %s, password: %s", fxaSettings.getUserName(), fxaSettings.getPassword()));
 
-			Log.d(TAG, String.format("Database path: %s", databasePath));
+			//get weave account params
+			FxAccountParams fxaParams = new FxAccountParams();
+			fxaParams.accountServer = fxaSettings.getAccountServer();
+			fxaParams.tokenServer   = fxaSettings.getTokenServer();
+			fxaParams.user          = fxaSettings.getUserName();
+			fxaParams.password      = fxaSettings.getPassword();
 
-			ClientAuth auth = new ClientAuth(weaveClient, databasePath);
+			//FIXME - cache certificate and wrapkB
+			//fxaParams.browserIdCertificate = new FxAccountCertificate();
+			//fxaParams.wrapkB               = new byte[];
+			
+			//TODO - validate weave account settings
+			if (fxaParams.accountServer == null) {
+				Log.e(TAG, "Weave account settings invalid");
+				return;
+			}
 
-			String curStatus = auth.getAuthStatus();
-			messages = auth.processClientAuthMessages();
-			String newStatus = auth.getAuthStatus();
+			//Initialise weave client
+			try {
+				weaveClient = WeaveClientFactory.getInstance(fxaParams);
+			} catch (WeaveException e) {
+				Log.e(TAG, e.getMessage());
+				closeWeaveClient();
+				return;
+			}
 
-			if ( curStatus != null && curStatus.equals("pending") ) {
-				
-				//If client has been authorised update configuration
-				if ( newStatus.equals("authorised") ) {
-					//Update synckey, re-initialise weave client and notify user clientauth request approved
+		} else if ( account.type.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
 
-					Log.i(TAG, String.format("Client auth request approved by '%s'", auth.getAuthBy()));
+			LegacyV5AccountSettings wslSettings = new LegacyV5AccountSettings(getContext(), account);
+			
+			Log.d(TAG, String.format("Weave Sync V5 credentials - username: %s, password: %s, synckey: %s", wslSettings.getUserName(), wslSettings.getPassword(), wslSettings.getSyncKey()));
 
-					accountManager.setPassword(account, AccountSettings.encodePassword(settings.getPassword(), auth.getSyncKey()));
-					
-					params.syncKey = auth.getSyncKey();
-					weaveClient.init(params);
+			//get weave account params
+			LegacyV5AccountParams wslParams = new LegacyV5AccountParams();
+			wslParams.accountServer = wslSettings.getBaseURL();
+			wslParams.user          = wslSettings.getUserName();
+			wslParams.password      = wslSettings.getPassword();
+			wslParams.syncKey       = wslSettings.getSyncKey();
+			
+			//TODO - validate weave account settings
+			if (wslParams.accountServer == null) {
+				Log.e(TAG, "Weave account settings invalid");
+				return;
+			}
 
-					//Notify user that clientauth request has been approved
-					displayNotificationApprovedClientAuth(account.name, auth.getAuthBy());
-					
-				} else if ( newStatus.equals("pending") ) {
-					//Client not yet authenticated
-					
-					Log.i(TAG, String.format("Client auth request pending with authcode '%s'", auth.getAuthCode()));
-					
-					//Notify user of the authcode to be entered in authorising device
-					displayNotificationPendingClientAuth(account.name, auth.getAuthCode());
-					
-					return;
-				}
+			//Initialise weave client
+			try {
+				weaveClient = WeaveClientFactory.getInstance(wslParams);
+			} catch (WeaveException e) {
+				Log.e(TAG, e.getMessage());
+				closeWeaveClient();
+				return;
 			}
 			
-		} catch(Exception e) {
-			Log.e(TAG, String.format("%s - %s", e.getClass().getName() , e.getMessage()));
-			return;
+		} else {
+
+			ExfioPeerAccountSettings epSettings = new ExfioPeerAccountSettings(getContext(), account);
+			
+			Log.d(TAG, String.format("eXfio Peer credentials - username: %s, password: %s, synckey: %s", epSettings.getUserName(), epSettings.getPassword(), epSettings.getSyncKey()));
+
+			//get weave account params
+			LegacyV5AccountParams wslParams = new LegacyV5AccountParams();
+			wslParams.accountServer = epSettings.getBaseURL();
+			wslParams.user          = epSettings.getUserName();
+			wslParams.password      = epSettings.getPassword();
+			wslParams.syncKey       = epSettings.getSyncKey();
+			
+			//TODO - validate weave account settings
+			if (wslParams.accountServer == null) {
+				Log.e(TAG, "Weave account settings invalid");
+				return;
+			}
+
+			//Initialise weave client
+			try {
+				weaveClient = WeaveClientFactory.getInstance(wslParams);
+			} catch (WeaveException e) {
+				Log.e(TAG, e.getMessage());
+				closeWeaveClient();
+				return;
+			}
+			
+			Log.i(TAG, String.format("Checking messages"));
+
+			Message[] messages = null;
+			
+			try {
+				
+				//Initialise sqldroid jdbc provider
+				Class.forName("org.sqldroid.SQLDroidDriver");
+	            String databasePath = getContext().getDatabasePath(epSettings.getGuid()).getAbsolutePath();
+
+				Log.d(TAG, String.format("Database path: %s", databasePath));
+
+				ExfioPeerV1 auth = new ExfioPeerV1(weaveClient, databasePath);
+
+				String curStatus = auth.getAuthStatus();
+				messages = auth.processClientAuthMessages();
+				String newStatus = auth.getAuthStatus();
+
+				if ( curStatus != null && curStatus.equals("pending") ) {
+					
+					//If client has been authorised update configuration
+					if ( newStatus.equals("authorised") ) {
+						//Update synckey, re-initialise weave client and notify user clientauth request approved
+
+						Log.i(TAG, String.format("Client auth request approved by '%s'", auth.getAuthBy()));
+
+						accountManager.setPassword(account, LegacyV5AccountSettings.encodePassword(epSettings.getPassword(), auth.getSyncKey()));
+						
+						wslParams.syncKey = auth.getSyncKey();
+						weaveClient.init(wslParams);
+
+						//Notify user that clientauth request has been approved
+						displayNotificationApprovedClientAuth(account.name, auth.getAuthBy());
+						
+					} else if ( newStatus.equals("pending") ) {
+						//Client not yet authenticated
+						
+						Log.i(TAG, String.format("Client auth request pending with authcode '%s'", auth.getAuthCode()));
+						
+						//Notify user of the authcode to be entered in authorising device
+						displayNotificationPendingClientAuth(account.name, auth.getAuthCode());
+						
+						return;
+					}
+				}
+				
+			} catch(Exception e) {
+				Log.e(TAG, String.format("%s - %s", e.getClass().getName() , e.getMessage()));
+				return;
+			}
+			
+			Log.d(TAG, String.format("Processing %d pending client auth request messages", messages.length));
+			
+			for (Message msg: messages) {
+				ClientAuthRequestMessage caMsg = (ClientAuthRequestMessage)msg;
+
+				Log.i(TAG, String.format("Client auth request pending approval for client '%s'", caMsg.getClientName()));
+
+				//Notify user that a clientauth request is waiting for approval
+				displayNotificationReceivedClientAuth(account.name, caMsg);
+			}
+			
 		}
 		
-		Log.d(TAG, String.format("Processing %d pending client auth request messages", messages.length));
-		
-		for (Message msg: messages) {
-			ClientAuthRequestMessage caMsg = (ClientAuthRequestMessage)msg;
-
-			Log.i(TAG, String.format("Client auth request pending approval for client '%s'", caMsg.getClientName()));
-
-			//Notify user that a clientauth request is waiting for approval
-			displayNotificationReceivedClientAuth(account.name, caMsg);
-		}
 		
 		//getSyncPairs() overridden by implementing classes, i.e. ContactsSyncAdapter 
 		Map<LocalCollection<?>, WeaveCollection<?>> syncCollections = null;		

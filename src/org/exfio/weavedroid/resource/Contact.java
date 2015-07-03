@@ -17,7 +17,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.io.StringReader;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,13 +25,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import android.util.Log;
 import ezvcard.Ezvcard;
 import ezvcard.VCard;
-import ezvcard.VCardException;
 import ezvcard.VCardVersion;
 import ezvcard.parameter.EmailType;
 import ezvcard.parameter.ImageType;
@@ -60,7 +57,7 @@ import ezvcard.property.Uid;
 import ezvcard.property.Url;
 
 import org.exfio.weave.WeaveException;
-import org.exfio.weave.client.WeaveBasicObject;
+import org.exfio.weave.storage.WeaveBasicObject;
 import org.exfio.weavedroid.Constants;
 
 @ToString(callSuper = true)
@@ -161,7 +158,7 @@ public class Contact extends Resource {
 		fromVCardObject(vcard);
 	}
 
-	public void parseVCard(InputStream is) throws IOException, VCardException {
+	public void parseVCard(InputStream is) throws IOException {
 		Log.d(TAG, "parseVCard()");
 
 		VCard vcard = Ezvcard.parse(is).first();
@@ -171,7 +168,7 @@ public class Contact extends Resource {
 		fromVCardObject(vcard);
 	}
 
-	protected void fromVCardObject(VCard vcard) throws IOException, VCardException {
+	protected void fromVCardObject(VCard vcard) throws IOException {
 		Log.d(TAG, "fromVCardObject()");
 
 		// now work through all supported properties

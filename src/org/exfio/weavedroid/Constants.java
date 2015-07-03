@@ -14,12 +14,14 @@
 package org.exfio.weavedroid;
 
 public class Constants {
-	public static final String APP_VERSION            = "1.0-alpha3";
-	public static final String ACCOUNT_TYPE           = "weave.exfio.org";	
+	public static final String APP_VERSION            = "1.1-alpha1";
+	public static final String ACCOUNT_TYPE_LEGACYV5  = "org.exfio.weavedroid.legacyv5";	
+	public static final String ACCOUNT_TYPE_EXFIOPEER = "org.exfio.weavedroid.exfiopeer";	
+	public static final String ACCOUNT_TYPE_FXACCOUNT = "org.exfio.weavedroid.fxaccount";	
 	public static final String META_COLLECTION        = "meta";
 	public static final String META_ID                = "exfio";
 	public static final String ADDRESSBOOK_COLLECTION = "exfiocontacts";
-	public static final String WEB_URL_HELP           = "http://weavedroid.exfio.org";
+	public static final String WEB_URL_HELP           = "http://cucumbersync.exfio.org";
 	public static enum ResourceType {
 		ADDRESS_BOOK,
 		CALENDAR

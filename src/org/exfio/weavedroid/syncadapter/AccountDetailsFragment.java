@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.exfio.weave.account.WeaveAccountParams;
 import org.exfio.weavedroid.R;
 import org.exfio.weavedroid.util.Log;
 
@@ -76,10 +77,22 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 		ServerInfo serverInfo = (ServerInfo)getArguments().getSerializable(AccountSettings.KEY_SERVER_INFO);
 		try {
 			String accountName = editAccountName.getText().toString();
+			String accountType = serverInfo.getAccountType();
 			
 			AccountManager accountManager = AccountManager.get(getActivity());
-			Account account = new Account(accountName, org.exfio.weavedroid.Constants.ACCOUNT_TYPE);
-			Bundle userData = AccountSettings.createBundle(serverInfo);
+			Account account = new Account(accountName, accountType);
+
+			AccountSettings settings = null;
+			if ( accountType.equals(org.exfio.weavedroid.Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
+				settings = new FxAccountAccountSettings();
+			} else if ( accountType.equals(org.exfio.weavedroid.Constants.ACCOUNT_TYPE_LEGACYV5) ) {
+				settings = new LegacyV5AccountSettings();
+			} else {
+				settings = new ExfioPeerAccountSettings();
+			}
+
+			Bundle userData = settings.createBundle(serverInfo);
+			String password = settings.getPassword(serverInfo);
 			
 			if (serverInfo.getAddressBook().isEnabled()) {
 				ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 1);
@@ -88,8 +101,7 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 				ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 0);
 			}
 
-			//FIXME - make password/synckey concatenation more robust, i.e. encode as JSON
-			if (accountManager.addAccountExplicitly(account, AccountSettings.encodePassword(serverInfo.getPassword(), serverInfo.getSyncKey()), userData)) {
+			if (accountManager.addAccountExplicitly(account, password, userData)) {
 				getActivity().finish();
 			} else {
 				Toast.makeText(getActivity(), "Couldn't create account (account with this name already existing?)", Toast.LENGTH_LONG).show();
@@ -97,6 +109,7 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 			
 		} catch (Exception e) {
 			Log.getInstance().error(String.format("Error creating account - %s", e.getMessage()));
+			Toast.makeText(getActivity(), "Couldn't create account", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -111,16 +124,13 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 		item.setEnabled(ok);
 	}
 
-	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 	}
 
-	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		getActivity().invalidateOptionsMenu();
 	}
 
-	@Override
 	public void afterTextChanged(Editable s) {
 	}
 }

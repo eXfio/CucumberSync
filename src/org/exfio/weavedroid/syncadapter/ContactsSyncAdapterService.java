@@ -62,8 +62,16 @@ public class ContactsSyncAdapterService extends Service {
 		@Override
 		protected Map<LocalCollection<?>, WeaveCollection<?>> getSyncPairs(Account account, ContentProviderClient provider, WeaveClient weaveClient) throws WeaveException{
 			
-			AccountSettings settings = new AccountSettings(getContext(), account);
+			AccountSettings settings = null;
 
+			if ( account.type.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
+				settings = new LegacyV5AccountSettings(getContext(), account);
+			} else if ( account.type.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
+				settings = new FxAccountAccountSettings(getContext(), account);
+			} else {
+				settings = new ExfioPeerAccountSettings(getContext(), account);
+			}
+			
 			try {
 				LocalCollection<?> database = new LocalAddressBook(account, provider, settings);
 				WeaveCollection<?> weave = new WeaveAddressBook(weaveClient, Constants.ADDRESSBOOK_COLLECTION);

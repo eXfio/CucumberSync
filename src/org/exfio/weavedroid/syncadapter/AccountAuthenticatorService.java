@@ -54,6 +54,8 @@ public class AccountAuthenticatorService extends Service {
 				String[] requiredFeatures, Bundle options) throws NetworkErrorException {
 			Intent intent = new Intent(context, AddAccountActivity.class);
 			intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
+			intent.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, accountType);
+			
 			Bundle bundle = new Bundle();
 			bundle.putParcelable(AccountManager.KEY_INTENT, intent);
 			return bundle;

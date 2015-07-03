@@ -13,29 +13,53 @@
  ******************************************************************************/
 package org.exfio.weavedroid.syncadapter;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Properties;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import org.exfio.weavedroid.Constants.ResourceType;
 
 @RequiredArgsConstructor(suppressConstructorProperties=true)
 @Data
 public class ServerInfo implements Serializable {
-	private static final long serialVersionUID = 238330408340527325L;
+	private static final long serialVersionUID = 238330408340529125L;
 	
-	final private String  guid;
-	final private String  baseURL;
-	final private String  user;
-	final private String  password;
-	final private String  syncKey;
-	final private boolean authPreemptive;
+	private String accountType;
+	private String guid;
+	
+	@Getter(AccessLevel.NONE)
+	@Setter(AccessLevel.NONE)
+	private String accountParams;
 	
 	private ResourceInfo addressBook;
-	
 	private String errorMessage;
-		
+	
+	public void setAccountParams(Properties prop) throws IOException {
+		//Write properties to string
+		StringWriter sw = new StringWriter();
+		BufferedWriter bf = new BufferedWriter(sw);
+		prop.store(bf, "Serialised Weave Account Params");
+		accountParams = sw.toString();
+	}
+
+	public Properties getAccountParamsAsProperties() throws IOException {
+		//Read properties from string
+		BufferedReader br = new BufferedReader(new StringReader(accountParams));
+		Properties prop = new Properties();
+		prop.load(br);
+		return prop;
+	}
+	
 	@RequiredArgsConstructor(suppressConstructorProperties=true)
 	@Data
 	public static class ResourceInfo implements Serializable {

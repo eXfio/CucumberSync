@@ -1,5 +1,5 @@
 <sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="weave.exfio.org"
+    android:accountType="org.exfio.weavedroid.exfiopeer"
     android:contentAuthority="com.android.contacts"
     android:allowParallelSyncs="true"
     android:supportsUploading="true"

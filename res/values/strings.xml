@@ -12,7 +12,8 @@
     <string name="http_warning">"If you don't use encryption (HTTPS), other people may easily intercept your login details, contacts and events."</string>
     <string name="user_name">User name:</string>
     <string name="password">Password:</string>
-    <string name="root_url">Root URL (collections will be auto-detected):</string>
+    <string name="account_server_label">Root URL (collections will be auto-detected):</string>
+    <string name="token_server_label">Root URL (collections will be auto-detected):</string>
     <string name="next">Next</string>
     <string name="help">Help</string>
     <string name="invalid_base_url">Invalid base URL: </string>
@@ -97,6 +98,6 @@
     <string name="synckey">Sync Key:</string>
     <string name="received_ca_authcode">Enter auth code here to approve</string>
     <string name="received_ca_reject">Reject</string>
-    <string name="received_ca_approve">Approve</string><string name="weavedroid_account_type">Cucumber Sync</string><string name="weavedroid_account_name_hint">My Cucumber Sync Account</string><string name="weavedroid_help">Cucumber Sync Help</string>
+    <string name="received_ca_approve">Approve</string><string name="weavedroid_account_legacyv5">Cucumber Sync Weave</string><string name="weavedroid_account_exfiopeer">Cucumber Sync eXfio</string><string name="weavedroid_account_fxaccount">Cucumber Sync FxA</string><string name="weavedroid_account_name_hint">My Cucumber Sync Account</string><string name="weavedroid_help">Cucumber Sync Help</string>
 
 </resources>

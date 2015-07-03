@@ -38,9 +38,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.exfio.weave.util.URIUtils;
+import org.exfio.weavedroid.Constants;
 import org.exfio.weavedroid.R;
 
-public class EnterCredentialsFragment extends Fragment implements TextWatcher {
+public class LegacyV5EnterCredentialsFragment extends Fragment implements TextWatcher {
 	String protocol;
 	
 	TextView textHttpWarning, labelSyncKey;
@@ -51,20 +52,19 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.enter_credentials, container, false);
+		View v = inflater.inflate(R.layout.enter_credentials_legacyv5, container, false);
 		
 		// protocol selection spinner
 		textHttpWarning = (TextView) v.findViewById(R.id.http_warning);
 		
-		spnrProtocol = (Spinner) v.findViewById(R.id.select_protocol);
+		spnrProtocol = (Spinner) v.findViewById(R.id.legacyv5_account_server_protocol);
 		spnrProtocol.setOnItemSelectedListener(new OnItemSelectedListener() {
-			@Override
+			
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				protocol = parent.getAdapter().getItem(position).toString();
 				textHttpWarning.setVisibility(protocol.equals("https://") ? View.GONE : View.VISIBLE);
 			}
 
-			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 				protocol = null;
 			}
@@ -73,7 +73,7 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 		spnrProtocol.setSelection(1);	// HTTPS
 
 		// other input fields
-		editBaseURL = (EditText) v.findViewById(R.id.baseURL);
+		editBaseURL = (EditText) v.findViewById(R.id.legacyv5_account_server_url);
 		editBaseURL.addTextChangedListener(this);
 		
 		editUserName = (EditText) v.findViewById(R.id.userName);
@@ -89,13 +89,9 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 		// hook into action bar
 		setHasOptionsMenu(true);
 
-		//TODO - Move synckey to manual configuration fragment
-		labelSyncKey.setVisibility(View.INVISIBLE);
-		editSyncKey.setVisibility(View.INVISIBLE);
-
 		//Dev environment
 		//spnrProtocol.setSelection(0);
-		//editBaseURL.setText("argent.local:8081");
+		//editAccountServerUrl.setText("argent.local:8081");
 		//editUserName.setText("gerry");
 		//editPassword.setText("test1234");
         
@@ -129,12 +125,13 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 		
 		Bundle args = new Bundle();
 		
-		String host_path = editBaseURL.getText().toString();
-		args.putString(QueryServerDialogFragment.EXTRA_BASE_URL, URIUtils.sanitize(protocol + host_path));
-		args.putString(QueryServerDialogFragment.EXTRA_USER_NAME, editUserName.getText().toString());
-		args.putString(QueryServerDialogFragment.EXTRA_PASSWORD, editPassword.getText().toString());
-		args.putString(QueryServerDialogFragment.EXTRA_SYNC_KEY, editSyncKey.getText().toString());
-		args.putBoolean(QueryServerDialogFragment.EXTRA_AUTH_PREEMPTIVE, true);
+		args.putString(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, Constants.ACCOUNT_TYPE_LEGACYV5);
+		args.putString(LegacyV5AccountSettings.KEY_BASE_URL, URIUtils.sanitize(protocol + editBaseURL.getText().toString()));
+		args.putString(LegacyV5AccountSettings.KEY_USERNAME, editUserName.getText().toString());
+		args.putString(LegacyV5AccountSettings.KEY_PASSWORD , editPassword.getText().toString());
+		args.putString(LegacyV5AccountSettings.KEY_SYNCKEY, editSyncKey.getText().toString());
+		args.putBoolean(LegacyV5AccountSettings.KEY_AUTH_PREEMPTIVE, true);
+
 		
 		DialogFragment dialog = new QueryServerDialogFragment();
 		dialog.setArguments(args);
@@ -163,16 +160,13 @@ public class EnterCredentialsFragment extends Fragment implements TextWatcher {
 		item.setEnabled(ok);
 	}
 
-	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 	}
 
-	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		getActivity().invalidateOptionsMenu();
 	}
 
-	@Override
 	public void afterTextChanged(Editable s) {
 	}
 }

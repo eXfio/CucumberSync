@@ -20,7 +20,7 @@ import android.content.SyncResult;
 import android.util.Log;
 
 import org.exfio.weave.WeaveException;
-import org.exfio.weave.client.NotFoundException;
+import org.exfio.weave.storage.NotFoundException;
 import org.exfio.weavedroid.resource.LocalCollection;
 import org.exfio.weavedroid.resource.LocalStorageException;
 import org.exfio.weavedroid.resource.RecordNotFoundException;
@@ -44,6 +44,8 @@ public class SyncManager {
 
 	//TODO - Adapt for use with Weave Sync
 	public void synchronize(boolean manualSync, SyncResult syncResult) throws LocalStorageException, WeaveException {
+		Log.d(TAG, "synchronize()");
+
 		// PHASE 1: push local changes to server
 		int	deletedRemotely = pushDeleted();
 		int addedRemotely   = pushNew();
@@ -54,12 +56,16 @@ public class SyncManager {
 		// PHASE 2A: check if there's a reason to do a sync with remote (= forced sync or remote CTag changed)
 		boolean fetchCollection = false;
 
+		Double localModified = local.getModifiedTime();
 		Double remoteModified = null;
 		try {
 			remoteModified = remote.getModifiedTime();
 		} catch (NotFoundException e) {
 			//No exfiocontacts entries			
 		}
+		
+		//DEBUG only
+		localModified = 1400000000.00D;
 
 		if (manualSync) {
 			Log.i(TAG, "Synchronization forced");
@@ -67,12 +73,12 @@ public class SyncManager {
 		} else if (syncResult.stats.numEntries > 0) {
 			Log.i(TAG, "Local changes found");
 			fetchCollection = true;
-		} else if (remoteModified == null || remoteModified != local.getModifiedTime()) {
+		} else if (remoteModified == null || remoteModified != localModified) {
 			Log.i(TAG, "Remote changes found");
 			fetchCollection = true;
 		}
 				
-		Log.d(TAG, String.format("local mod time: %.02f, remote mod time: %.02f", local.getModifiedTime(), remoteModified));
+		Log.d(TAG, String.format("local mod time: %.02f, remote mod time: %.02f", localModified, remoteModified));
 		
 		if (!fetchCollection) {
 			Log.i(TAG, "No local or remote changes, no need to sync");
@@ -86,7 +92,7 @@ public class SyncManager {
 		
 		String [] remoteResourceIds = null;
 		try {
-			remoteResourceIds = remote.getObjectIdsModifiedSince(local.getModifiedTime());
+			remoteResourceIds = remote.getObjectIdsModifiedSince(localModified);
 		} catch (NotFoundException e) {
 			throw new WeaveException("Couldn't get modified objects", e);
 		}
