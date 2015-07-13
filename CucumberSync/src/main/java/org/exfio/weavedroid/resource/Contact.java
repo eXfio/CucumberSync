@@ -442,7 +442,7 @@ public class Contact extends Resource {
 			vcard.addPhoto(new Photo(photo, ImageType.JPEG));
 		
 		// PRODID, REV
-		vcard.setProdId("WeaveDroid/" + Constants.APP_VERSION + " (ez-vcard/" + Ezvcard.VERSION + ")");
+		vcard.setProductId("WeaveDroid/" + Constants.APP_VERSION + " (ez-vcard/" + Ezvcard.VERSION + ")");
 		vcard.setRevision(Revision.now());
 		
 		return vcard;

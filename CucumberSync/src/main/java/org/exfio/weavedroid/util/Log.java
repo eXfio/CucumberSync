@@ -76,7 +76,13 @@ public class Log extends org.exfio.weave.util.Log {
 			//Log level not honoured by logcat hence we also need to set log level via adb
 			//$ adb shell setprop log.tag.org.apache.http.wire DEBUG
 			//$ adb shell setprop log.tag.org.apache.http.headers DEBUG
-		}		
+
+			//fxaclient
+			java.util.logging.Logger.getLogger("exfio").setLevel(java.util.logging.Level.FINEST);
+			java.util.logging.Logger.getLogger("exfio.fxaclient").setLevel(java.util.logging.Level.FINEST);
+			System.setProperty("org.apache.commons.logging.simplelog.log.exfio", "debug");
+			System.setProperty("org.apache.commons.logging.simplelog.log.exfio.fxaclient", "debug");
+		}
 	}
 	
 	public static void setLogLevel(String logger, String level) {

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import android.app.DialogFragment;
+import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
@@ -40,7 +41,6 @@ import org.exfio.weave.client.WeaveClient;
 import org.exfio.weave.client.WeaveClientFactory;
 import org.exfio.weave.util.OSUtils;
 import org.exfio.weavedroid.Constants;
-import org.exfio.weavedroid.syncadapter.AccountDetailsFragment;
 import org.exfio.weavedroid.util.SystemUtils;
 import org.exfio.weavedroid.R;
 
@@ -58,7 +58,18 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 		setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
 		setCancelable(false);
 
-		Loader<ServerInfo> loader = getLoaderManager().initLoader(0, getArguments(), this);
+		LoaderManager.enableDebugLogging(true);
+
+		// https://groups.google.com/forum/#!topic/android-developers/DbKL6PVyhLI
+		//Loader<ServerInfo> loader = getLoaderManager().initLoader(0, getArguments(), this);
+
+		Loader<ServerInfo> loader = getLoaderManager().getLoader(0);
+		if ( loader != null && loader.isReset() ) {
+			loader = getLoaderManager().restartLoader(0, getArguments(), this);
+		} else {
+			loader = getLoaderManager().initLoader(0, getArguments(), this);
+		}
+
 		if (savedInstanceState == null)		// http://code.google.com/p/android/issues/detail?id=14944
 			loader.forceLoad();
 	}
@@ -70,6 +81,19 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 		return v;
 	}
 
+	@Override
+	public void onStart() {
+		Log.d(TAG, "onStart()");
+		super.onStart();
+
+		Loader<ServerInfo> loader = getLoaderManager().getLoader(0);
+		if ( loader == null || loader.isReset() || loader.isAbandoned() ) {
+			Log.d(TAG, "Couldn't reconnect to loader");
+			Toast.makeText(getActivity(), "Couldn't reconnect to loader", Toast.LENGTH_LONG).show();
+			getDialog().dismiss();
+		}
+	}
+
 	public Loader<ServerInfo> onCreateLoader(int id, Bundle args) {
 		Log.d(TAG, "onCreateLoader()");
 		return new ServerInfoLoader(getActivity(), args);
@@ -77,21 +101,21 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 
 	public void onLoadFinished(Loader<ServerInfo> loader, ServerInfo serverInfo) {
 		Log.d(TAG, "onLoadFinished()");
-		
+
 		if (serverInfo.getErrorMessage() != null) {
 			Toast.makeText(getActivity(), serverInfo.getErrorMessage(), Toast.LENGTH_LONG).show();
 		} else {
-			
+
 			// pass to "account details" fragment
 			AccountDetailsFragment accountDetails = new AccountDetailsFragment();
 			Bundle arguments = new Bundle();
 			arguments.putSerializable(AccountSettings.KEY_SERVER_INFO, serverInfo);
 			accountDetails.setArguments(arguments);
-			
+
 			getFragmentManager().beginTransaction()
-				.replace(R.id.fragment_container, accountDetails)
-				.addToBackStack(null)
-				.commitAllowingStateLoss();
+					.replace(R.id.fragment_container, accountDetails)
+					.addToBackStack(null)
+					.commitAllowingStateLoss();
 		}
 
 		getDialog().dismiss();
@@ -105,10 +129,24 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 	static class ServerInfoLoader extends AsyncTaskLoader<ServerInfo> {
 		private static final String TAG = "exfio.ServerInfoLoader";
 		Bundle args;
-		
+
+		private ServerInfo serverInfo;
+
 		public ServerInfoLoader(Context context, Bundle args) {
 			super(context);
 			this.args = args;
+			serverInfo = null;
+		}
+
+		@Override
+		protected void onStartLoading() {
+			Log.d(TAG, "onStartLoading()");
+
+			// deliverResult() not automatically triggered after screen lock or returning from other activity
+			// http://stackoverflow.com/questions/7474756/onloadfinished-not-called-after-coming-back-from-a-home-button-press
+			if (serverInfo != null) {
+				deliverResult(serverInfo);
+			}
 		}
 
 		@Override
@@ -118,9 +156,9 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 			//DEBUG only
 			if ( SystemUtils.isDebuggable(getContext()) ) {
 				org.exfio.weavedroid.util.Log.init("debug");
-				org.exfio.weave.util.Log.init("debug");
-				org.mozilla.gecko.background.common.log.Logger.init("debug");
-				org.mozilla.gecko.background.common.log.Logger.setLogLevel("exfio.fxatest", "debug");
+				//org.exfio.weave.util.Log.init("debug");
+				//org.mozilla.gecko.background.common.log.Logger.init("debug");
+				//org.mozilla.gecko.background.common.log.Logger.setLogLevel("exfio.fxaclient", "debug");
 			}
 			
 			String accountType = args.getString(android.accounts.AccountManager.KEY_ACCOUNT_TYPE);
@@ -304,7 +342,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 				return null;
 			}
 
-			ServerInfo serverInfo = new ServerInfo();
+			serverInfo = new ServerInfo();
 			
 			if ( errorMessage == null ) {
 				
@@ -334,7 +372,9 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 			} else {
 				serverInfo.setErrorMessage(errorMessage);
 			}
-			
+
+			Log.d(TAG, "Returning from LoadInBackgroud()");
+
 			return serverInfo;
 		}
 	}

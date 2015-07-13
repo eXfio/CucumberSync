@@ -148,7 +148,7 @@ public class FxAccountEnterCredentialsFragment extends Fragment implements TextW
 					portAccount = ":" + uriAccount.getPort();
 				}
 			}
-			editAccountServerUrl.setText(uriAccount.getHost() + portAccount);
+			editAccountServerUrl.setText(uriAccount.getHost() + portAccount + uriAccount.getPath());
 
 			if ( uriToken.getScheme().equalsIgnoreCase("https") ) {
 				spnrTokenServerProtocol.setSelection(1);
@@ -161,7 +161,7 @@ public class FxAccountEnterCredentialsFragment extends Fragment implements TextW
 					portToken = ":" + uriToken.getPort();
 				}
 			}
-			editTokenServerUrl.setText(uriToken.getHost() + portToken);
+			editTokenServerUrl.setText(uriToken.getHost() + portToken + uriToken.getPath());
 
 		} catch(URISyntaxException e) {
 			//Fail quietly
