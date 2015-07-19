@@ -36,6 +36,7 @@ import org.exfio.weave.account.WeaveAccount;
 import org.exfio.weave.account.exfiopeer.ExfioPeerV1;
 import org.exfio.weave.account.fxa.FxAccount;
 import org.exfio.weave.account.fxa.FxAccountParams;
+import org.exfio.weave.account.legacy.LegacyV5Account;
 import org.exfio.weave.account.legacy.LegacyV5AccountParams;
 import org.exfio.weave.client.WeaveClient;
 import org.exfio.weave.client.WeaveClientFactory;
@@ -196,9 +197,13 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 					//Validate URI syntax
 					try {
 						URI.create(accountServer);
-						URI.create(tokenServer);
 					} catch (IllegalArgumentException e) {
 						throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", accountServer));
+					}
+					try {
+						URI.create(tokenServer);
+					} catch (IllegalArgumentException e) {
+						throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", tokenServer));
 					}
 
 					//Initialise account
@@ -247,14 +252,17 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 					adParams.user          = username;
 					adParams.password      = password;				
 					adParams.syncKey       = synckey;
-									
-					WeaveClient weaveClient = WeaveClientFactory.getInstance(adParams);
 
-					// Check weave account is initialised
-					if ( !weaveClient.isInitialised() ) {
-						throw new WeaveException(String.format("Weave account '%s@%s' not initialised.", adParams.user, adParams.accountServer)); 
+					//Validate URI syntax
+					try {
+						URI.create(accountServer);
+					} catch (IllegalArgumentException e) {
+						throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", accountServer));
 					}
-					
+
+					account = new LegacyV5Account();
+					account.init(adParams);
+
 				} catch (Exception e) {
 					Log.e(TAG, "Error while querying server info", e);
 					errorMessage = getContext().getString(R.string.exception_weavedroid, e.getLocalizedMessage());
@@ -286,8 +294,19 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 					LegacyV5AccountParams adParams = new LegacyV5AccountParams();
 					adParams.accountServer = accountServer;
 					adParams.user          = username;
-					adParams.password      = password;				
-									
+					adParams.password      = password;
+
+					//Validate URI syntax
+					try {
+						URI.create(accountServer);
+					} catch (IllegalArgumentException e) {
+						throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", accountServer));
+					}
+
+					account = new LegacyV5Account();
+					account.init(adParams);
+
+					/*
 					WeaveClient weaveClient = WeaveClientFactory.getInstance(adParams);
 					
 					// Check underlying weave account is initialised
@@ -331,6 +350,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 					String authCode = auth.getAuthCode();
 						
 					Log.i(TAG, String.format("Client auth request pending with auth code '%s'", authCode));
+					*/
 
 				} catch (Exception e) {
 					Log.e(TAG, "Error while querying server info", e);
@@ -347,7 +367,8 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 			if ( errorMessage == null ) {
 				
 				try {
-					
+
+					//FIXME - Store password separately OR include in properties?
 					serverInfo.setAccountType(accountType);
 					serverInfo.setGuid(guid);
 					serverInfo.setAccountParams(account.accountParamsToProperties());

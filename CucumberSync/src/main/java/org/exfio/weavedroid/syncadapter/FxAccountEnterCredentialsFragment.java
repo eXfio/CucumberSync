@@ -134,7 +134,7 @@ public class FxAccountEnterCredentialsFragment extends Fragment implements TextW
 
 			//FIXME - Debug only
 			//Dev environment
-			uriToken = new URI("http://argent.local:5000/1.0/sync/1.5");
+			uriToken = new URI("http://argent.local:5000/token/1.0/sync/1.5");
 			editUserName.setText("exfiotest1@gmail.com");
 
 			if ( uriAccount.getScheme().equalsIgnoreCase("https") ) {

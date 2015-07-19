@@ -14,12 +14,15 @@
 package org.exfio.weavedroid.syncadapter;
 
 import org.exfio.weave.WeaveException;
+import org.exfio.weave.account.WeaveAccount;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+
+import java.util.Properties;
 
 public abstract class AccountSettings {
 	private final static String TAG = "weave.AccountSettings";
@@ -32,6 +35,7 @@ public abstract class AccountSettings {
 	protected Context context;
 	protected AccountManager accountManager;
 	protected Account account;
+	protected String accountType;
 	
 	int settingsVersion;
 
@@ -40,7 +44,7 @@ public abstract class AccountSettings {
 
 	public AccountSettings(Context context, Account account) {
 		this.context = context;
-		this.account = account;		
+		this.account = account;
 		this.accountManager = AccountManager.get(context);
 	}
 	
@@ -59,6 +63,10 @@ public abstract class AccountSettings {
 	public abstract Bundle createBundle(ServerInfo serverInfo) throws WeaveException;
 
 	public abstract String getPassword(ServerInfo serverInfo) throws WeaveException;
+
+	public abstract Account createAccount(Context context, String accountName, Properties prop) throws WeaveException;
+
+	public abstract void updateAccount(Properties prop) throws WeaveException;
 
 	public String getGuid() {
 		return accountManager.getUserData(account, KEY_GUID);

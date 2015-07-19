@@ -6,9 +6,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.exfio.weave.WeaveException;
-import org.exfio.weave.account.fxa.FxAccount;
+import org.exfio.weave.account.WeaveAccount;
+import org.exfio.weave.account.legacy.LegacyV5Account;
+import org.exfio.weavedroid.Constants;
 
 import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -28,10 +31,13 @@ public class LegacyV5AccountSettings extends AccountSettings {
 	
 	public LegacyV5AccountSettings() {
 		super();
+		accountType     = Constants.ACCOUNT_TYPE_LEGACYV5;
+		settingsVersion = SETTINGS_VERSION;
 	}
 	
 	public LegacyV5AccountSettings(Context context, Account account) {
 		super(context, account);
+		accountType     = Constants.ACCOUNT_TYPE_LEGACYV5;
 		settingsVersion = SETTINGS_VERSION;
 		checkVersion();
 	}
@@ -45,12 +51,18 @@ public class LegacyV5AccountSettings extends AccountSettings {
 			throw new WeaveException(e);
 		}
 
+		return createBundle(prop);
+	}
+
+	public Bundle createBundle(Properties prop) throws WeaveException {
+
 		Bundle bundle = new Bundle();
 		bundle.putString(KEY_SETTINGS_VERSION, String.valueOf(SETTINGS_VERSION));
-		bundle.putString(KEY_GUID,             serverInfo.getGuid());
-		
-		bundle.putString(KEY_BASE_URL,         prop.getProperty(FxAccount.KEY_ACCOUNT_CONFIG_SERVER));
-		bundle.putString(KEY_USERNAME,         prop.getProperty(FxAccount.KEY_ACCOUNT_CONFIG_USERNAME));
+
+		String guid = WeaveAccount.generateAccountGuid(prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_SERVER), prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_USERNAME));
+		bundle.putString(KEY_GUID,     guid);
+		bundle.putString(KEY_BASE_URL, prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_SERVER));
+		bundle.putString(KEY_USERNAME, prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_USERNAME));
 		
 		return bundle;
 	}
@@ -63,9 +75,33 @@ public class LegacyV5AccountSettings extends AccountSettings {
 		} catch (IOException e) {
 			throw new WeaveException(e);
 		}
-		return encodePassword(prop.getProperty(KEY_PASSWORD), prop.getProperty(KEY_SYNCKEY));
+		return encodePassword(prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_PASSWORD), prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_SYNCKEY));
 	}
-	
+
+	@Override
+	public Account createAccount(Context context, String accountName, Properties prop) throws WeaveException {
+		accountManager = AccountManager.get(context);
+		Account account = new Account(accountName, accountType);
+
+		Bundle userData = createBundle(prop);
+
+		String password = encodePassword(prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_PASSWORD), prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_SYNCKEY));
+
+		accountManager.addAccountExplicitly(account, password, userData);
+
+		return account;
+	}
+
+	@Override
+	public void updateAccount(Properties prop) throws WeaveException {
+
+		//Nothing should change...
+		//accountManager.setUserData(account, KEY_BASE_URL, prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_SERVER));
+		//accountManager.setUserData(account, KEY_USERNAME, prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_USERNAME));
+
+		//accountManager.setPassword(account, encodePassword(prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_PASSWORD), prop.getProperty(LegacyV5Account.KEY_ACCOUNT_CONFIG_SYNCKEY));
+	}
+
 	// Weave account settings	
 	// FIXME - make password/synckey concatenation more robust, i.e. encode as JSON
 	public static String encodePassword(String password, String synckey) {
