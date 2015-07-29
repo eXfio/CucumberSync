@@ -66,15 +66,6 @@ public class FxAccountEnterCredentialsFragment extends Fragment implements TextW
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				accountServerProtocol = parent.getAdapter().getItem(position).toString();
-				if (
-						accountServerProtocol.equals("https://")
-								&&
-								tokenServerProtocol.equals("https://")
-						) {
-					textHttpWarning.setVisibility(View.GONE);
-				} else {
-					textHttpWarning.setVisibility(View.VISIBLE);
-				}
 			}
 
 			@Override
@@ -90,15 +81,6 @@ public class FxAccountEnterCredentialsFragment extends Fragment implements TextW
 
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				tokenServerProtocol = parent.getAdapter().getItem(position).toString();
-				if (
-						accountServerProtocol.equals("https://")
-								&&
-								tokenServerProtocol.equals("https://")
-						) {
-					textHttpWarning.setVisibility(View.GONE);
-				} else {
-					textHttpWarning.setVisibility(View.VISIBLE);
-				}
 			}
 
 			public void onNothingSelected(AdapterView<?> parent) {
@@ -127,15 +109,10 @@ public class FxAccountEnterCredentialsFragment extends Fragment implements TextW
 
 		//Defaults
 		try {
-			URI uriAccount = new URI(WeaveClientV1_5.DEFAULT_ACCOUNT_SERVER);
-			URI uriToken = new URI(WeaveClientV1_5.DEFAULT_TOKEN_SERVER);
+			URI uriAccount = new URI(FxAccountAccountSettings.DEFAULT_ACCOUNT_SERVER);
+			URI uriToken = new URI(FxAccountAccountSettings.DEFAULT_TOKEN_SERVER);
 			String portAccount = "";
 			String portToken   = "";
-
-			//FIXME - Debug only
-			//Dev environment
-			uriToken = new URI("http://argent.local:5000/token/1.0/sync/1.5");
-			editUserName.setText("exfiotest1@gmail.com");
 
 			if ( uriAccount.getScheme().equalsIgnoreCase("https") ) {
 				spnrAccountServerProtocol.setSelection(1);

@@ -67,7 +67,10 @@ dependencies {
     compile 'com.madgag.spongycastle:core:1.51.0.0'
     compile 'com.madgag.spongycastle:prov:1.51.0.0'
     compile 'com.fasterxml.jackson.core:jackson-core:2.4.4'
-    compile 'org.mnode.ical4j:ical4j:1.0.6'
+    compile ('org.mnode.ical4j:ical4j:1.0.6') {
+        //exclude Android provided libraries
+        exclude group: 'backport-util-concurrent', module: 'backport-util-concurrent'
+    }
     compile 'com.googlecode.ez-vcard:ez-vcard:0.9.6'
 
     provided 'org.projectlombok:lombok:1.16.4'

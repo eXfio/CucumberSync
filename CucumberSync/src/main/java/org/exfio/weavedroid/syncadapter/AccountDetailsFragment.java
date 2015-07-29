@@ -158,6 +158,8 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 				ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 0);
 			}
 
+			getActivity().finish();
+
 		} catch (Exception e) {
 			Log.getInstance().error(String.format("Error creating account - %s", e.getMessage()));
 			Toast.makeText(getActivity(), "Couldn't create account", Toast.LENGTH_LONG).show();

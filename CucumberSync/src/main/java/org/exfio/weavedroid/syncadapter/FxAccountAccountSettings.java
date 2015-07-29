@@ -21,6 +21,9 @@ public class FxAccountAccountSettings extends AccountSettings {
 
 	private static final int SETTINGS_VERSION = 1;
 
+	public static final String DEFAULT_ACCOUNT_SERVER = "https://api.accounts.firefox.com/v1";
+	public static final String DEFAULT_TOKEN_SERVER   = "https://cucumbersync.com/syncserver/token/1.0/sync/1.5";
+
 	public final static String
 	KEY_ACCOUNT_SERVER   = "accountserver",
 	KEY_TOKEN_SERVER     = "tokenserver",

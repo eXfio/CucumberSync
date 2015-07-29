@@ -368,7 +368,6 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 				
 				try {
 
-					//FIXME - Store password separately OR include in properties?
 					serverInfo.setAccountType(accountType);
 					serverInfo.setGuid(guid);
 					serverInfo.setAccountParams(account.accountParamsToProperties());

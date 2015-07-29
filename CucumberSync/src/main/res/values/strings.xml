@@ -10,10 +10,12 @@
     </string-array>
 
     <string name="http_warning">"If you don't use encryption (HTTPS), other people may easily intercept your login details, contacts and events."</string>
+    <string name="credentials_label">Account Credentials</string>
     <string name="user_name">User name:</string>
     <string name="password">Password:</string>
-    <string name="account_server_label">Root URL (collections will be auto-detected):</string>
-    <string name="token_server_label">Root URL (collections will be auto-detected):</string>
+    <string name="advanced_label">Advanced</string>
+    <string name="account_server_label">Account Server:</string>
+    <string name="token_server_label">Token Server:</string>
     <string name="next">Next</string>
     <string name="help">Help</string>
     <string name="invalid_base_url">Invalid base URL: </string>
@@ -62,7 +64,7 @@
        <h1>Welcome to Cucumber Sync/%s!</h1>
        
        <p>Cucumber Sync is an Android 4+ sync provider that syncs Personal Information Management data Securely (PIMS, like the drink), i.e. contacts and calendars.</p>
-       <p>Cucumber Sync uses a self-hosted Mozilla Sync server as the back end, just add a Cucumber Sync account for your Mozilla Sync server and contacts saved using the Cucumber Sync Contacts Provider will be synchronised with the server. Add the Cucumber Sync account to additional devices to synchronise contacts across multiple devices securely.</p>
+       <p>Cucumber Sync uses a self-hosted Mozilla Sync (aka Firefox Sync) server as the back end, just add a Cucumber Sync account using your Firefox Sync credentials and contacts saved using the Cucumber Sync Contacts Provider will be synchronised with the server. Add a Cucumber Sync account to additional devices to synchronise contacts across multiple devices securely.</p>
        
        <p>For more information, please see the <a href="https://github.com/nickel-chrome/CucumberSync">Cucumber Sync site</a> hosted on GitHub.
                      	   
@@ -74,8 +76,10 @@
 	   that are downloaded via these services.</p>
 	   	   
 	   <h2>Third-party libraries and dependencies</h2>
-	   <p>Cucumber Sync builds on <a href="http://davdroid.bitfire.at?pk_campaign=davdroid-app&amp;pk_kwd=main-activity">DAVdroid</a> by Richard Hirner (<a href="http://www.bitfire.at">bitfire web engineering</a>).</p>
-	   
+	   <p>Cucumber Sync is based heavily on:<br/>
+	    * <a href="http://davdroid.bitfire.at?pk_campaign=davdroid-app&amp;pk_kwd=main-activity">DAVdroid</a> by Richard Hirner (<a href="http://www.bitfire.at">bitfire web engineering</a>).<br/>
+	    * <a href="https://github.com/mozilla-services/android-sync">Mozilla Services Android Sync</a> – <a href="http://www.mozilla.org/MPL">Mozilla Public License 2.0</a></p>
+
 	   <p>
 	    Other third party libraries include:<br/>
 	    * <a href="http://hc.apache.org">Apache HttpClient</a> – <a href="http://www.apache.org/licenses/">Apache License, Version 2.0</a><br/>
@@ -98,6 +102,11 @@
     <string name="synckey">Sync Key:</string>
     <string name="received_ca_authcode">Enter auth code here to approve</string>
     <string name="received_ca_reject">Reject</string>
-    <string name="received_ca_approve">Approve</string><string name="weavedroid_account_legacyv5">Cucumber Sync Weave</string><string name="weavedroid_account_exfiopeer">Cucumber Sync eXfio</string><string name="weavedroid_account_fxaccount">Cucumber Sync FxA</string><string name="weavedroid_account_name_hint">My Cucumber Sync Account</string><string name="weavedroid_help">Cucumber Sync Help</string>
+    <string name="received_ca_approve">Approve</string>
+    <string name="weavedroid_account_legacyv5">Cucumber Sync Weave</string>
+    <string name="weavedroid_account_exfiopeer">Cucumber Sync eXfio</string>
+    <string name="weavedroid_account_fxaccount">Cucumber Sync</string>
+    <string name="weavedroid_account_name_hint">My Cucumber Sync Account</string>
+    <string name="weavedroid_help">Cucumber Sync Help</string>
 
 </resources>

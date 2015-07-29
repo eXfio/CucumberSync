@@ -14,7 +14,7 @@
 package org.exfio.weavedroid;
 
 public class Constants {
-	public static final String APP_VERSION            = "1.1-alpha1";
+	public static final String APP_VERSION            = "1.1-alpha-2";
 	public static final String ACCOUNT_TYPE_LEGACYV5  = "org.exfio.weavedroid.legacyv5";	
 	public static final String ACCOUNT_TYPE_EXFIOPEER = "org.exfio.weavedroid.exfiopeer";	
 	public static final String ACCOUNT_TYPE_FXACCOUNT = "org.exfio.weavedroid.fxaccount";	

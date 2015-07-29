@@ -59,7 +59,7 @@ public class ExfioPeerEnterCredentialsFragment extends Fragment implements TextW
 		
 		spnrProtocol = (Spinner) v.findViewById(R.id.exfiopeer_account_server_protocol);
 		spnrProtocol.setOnItemSelectedListener(new OnItemSelectedListener() {
-			
+
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				protocol = parent.getAdapter().getItem(position).toString();
 				textHttpWarning.setVisibility(protocol.equals("https://") ? View.GONE : View.VISIBLE);
@@ -85,16 +85,9 @@ public class ExfioPeerEnterCredentialsFragment extends Fragment implements TextW
 		// hook into action bar
 		setHasOptionsMenu(true);
 
-		//FIXME - Debug only
-		//Dev environment
-		//spnrProtocol.setSelection(0);
-		//editAccountServerUrl.setText("argent.local:8081");
-		//editUserName.setText("gerry");
-		//editPassword.setText("test1234");
-        
 		//ownCloud environment
-		spnrProtocol.setSelection(0);
-		editBaseURL.setText("cloud.kaleido.com.au/remote.php/mozilla_sync/");
+		spnrProtocol.setSelection(1);
+		editBaseURL.setText("cucumbersync.com/cloud/remote.php/mozilla_sync/");
         
 		return v;
 	}

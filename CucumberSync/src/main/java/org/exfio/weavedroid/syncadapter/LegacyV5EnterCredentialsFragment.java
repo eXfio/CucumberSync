@@ -89,16 +89,9 @@ public class LegacyV5EnterCredentialsFragment extends Fragment implements TextWa
 		// hook into action bar
 		setHasOptionsMenu(true);
 
-		//Dev environment
-		//spnrProtocol.setSelection(0);
-		//editAccountServerUrl.setText("argent.local:8081");
-		//editUserName.setText("gerry");
-		//editPassword.setText("test1234");
-        
-		//FIXME - Debug only
 		//ownCloud environment
-		spnrProtocol.setSelection(0);
-		editBaseURL.setText("cloud.kaleido.com.au/remote.php/mozilla_sync/");
+		spnrProtocol.setSelection(1);
+		editBaseURL.setText("cucumbersync.com/cloud/remote.php/mozilla_sync/");
         
 		return v;
 	}
