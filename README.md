@@ -1,4 +1,4 @@
-Cucumber Sync is an Android 4+ sync provider that syncs Personal Information Management data Securely (PIMS, like the drink), i.e. contacts and calendars. As a backend Cucumber Sync uses a self-hosted Mozilla Sync server. To use it, just add a Cucumber Sync account for your Mozilla Sync server and contacts saved using the Cucumber Sync Contacts Provider will be synchronised with the server. Add the Cucumber Sync account to additional devices to synchronise contacts across multiple devices securely.
+Cucumber Sync is an Android 4+ sync provider that syncs Personal Information Management data Securely (PIMS, like the drink), i.e. contacts and calendars. Cucumber Sync uses a self-hosted Mozilla Sync (aka Firefox Sync) server as the back end. Just add a Cucumber Sync account using your Firefox Sync credentials and contacts saved using the Cucumber Sync Contacts Provider will be synchronised with the server. Add the Cucumber Sync account to additional devices to synchronise contacts across multiple devices securely.
 
 License
 =======
@@ -6,7 +6,10 @@ This program and the accompanying materials are made available under the terms o
 
 Third-party libraries and dependencies
 ======================================
-Cucumber Sync builds on [DAVdroid](http://davdroid.bitfire.at?pk_campaign=davdroid-app&amp;pk_kwd=main-activity) by Richard Hirner ([bitfire web engineering](http://www.bitfire.at)).
+Cucumber Sync is based heavily on:
+
+* [DAVdroid](http://davdroid.bitfire.at?pk_campaign=davdroid-app&amp;pk_kwd=main-activity) by Richard Hirner ([bitfire web engineering](http://www.bitfire.at)).
+* [Mozilla Services Android Sync](https://github.com/mozilla-services/android-sync) – [Mozilla Public License 2.0](http://www.mozilla.org/MPL)
 
 Other third party libraries include:
 
