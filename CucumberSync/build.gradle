@@ -30,6 +30,7 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/NOTICE'
+        exclude 'commons-codec.license'
     }
 
     buildTypes {
@@ -51,7 +52,7 @@ dependencies {
     compile 'junit:junit:4.12'
 
     //weaveclient library
-    compile('org.exfio:weaveclient:1.0.0-alpha-2') {
+    compile('org.exfio:weaveclient:1.0.0-alpha-3') {
         //exclude android provided and non-android libraries
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
         exclude group: 'org.apache.httpcomponents', module: 'httpcore'
@@ -71,6 +72,7 @@ dependencies {
         //exclude Android provided libraries
         exclude group: 'backport-util-concurrent', module: 'backport-util-concurrent'
     }
+    compile 'net.sf.biweekly:biweekly:0.4.2'
     compile 'com.googlecode.ez-vcard:ez-vcard:0.9.6'
 
     provided 'org.projectlombok:lombok:1.16.4'

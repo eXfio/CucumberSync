@@ -16,6 +16,7 @@ package org.exfio.weavedroid.syncadapter;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.TimeZone;
 
 import android.app.DialogFragment;
 import android.app.LoaderManager;
@@ -372,18 +373,33 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 					serverInfo.setGuid(guid);
 					serverInfo.setAccountParams(account.accountParamsToProperties());
 
-					// Initialise exfiocontacts collection
+					// Initialise contacts
 					ServerInfo.ResourceInfo addressbook = new ServerInfo.ResourceInfo(
 						Constants.ResourceType.ADDRESS_BOOK,
 						false,
 						Constants.ADDRESSBOOK_COLLECTION,
 						"CucumberSync Contacts",
 						"CucumberSync Contacts",
+						null,
 						null
 					);
 					addressbook.setEnabled(true);
 					
-					serverInfo.setAddressBook(addressbook);	
+					serverInfo.setAddressBook(addressbook);
+
+					// Initialise calendar
+					ServerInfo.ResourceInfo calendar = new ServerInfo.ResourceInfo(
+						Constants.ResourceType.CALENDAR,
+						false,
+						Constants.CALENDAR_COLLECTION,
+						"CucumberSync Calendar",
+						"CucumberSync Calendar",
+						null,
+						TimeZone.getDefault().getID()
+					);
+					calendar.setEnabled(true);
+
+					serverInfo.setCalendar(calendar);
 
 				} catch (IOException e) {
 					serverInfo.setErrorMessage(e.getMessage());					

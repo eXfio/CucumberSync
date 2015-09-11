@@ -30,7 +30,7 @@ import android.provider.CalendarContract;
 import android.util.Log;
 
 public abstract class LocalCollection<T extends Resource> {
-	private static final String TAG = "weavedroid.LocalCollection";
+	private static final String TAG = "weavedroid.LocalCol";
 	
 	protected Account account;
 	protected ContentProviderClient providerClient;
@@ -53,7 +53,8 @@ public abstract class LocalCollection<T extends Resource> {
 	abstract protected String entryColumnDeleted();
 	
 	abstract protected String entryColumnUID();
-	
+
+	abstract protected String resourceToString(Resource resource) throws LocalStorageException;
 
 	LocalCollection(Account account, ContentProviderClient providerClient) {
 		this.account = account;
@@ -207,6 +208,14 @@ public abstract class LocalCollection<T extends Resource> {
 	abstract public T newResource(long localID, String resourceName, String eTag);
 	
 	public void add(Resource resource) {
+		Log.d(TAG, "add()");
+		try {
+			Log.d(TAG, "Before update");
+			Log.d(TAG, resourceToString(resource));
+		} catch (LocalStorageException e) {
+			//Fail quietly
+		}
+
 		int idx = pendingOperations.size();
 		pendingOperations.add(
 				buildEntry(ContentProviderOperation.newInsert(entriesURI()), resource)
@@ -217,18 +226,32 @@ public abstract class LocalCollection<T extends Resource> {
 	}
 	
 	public void updateByRemoteId(Resource remoteResource) throws LocalStorageException {
+		Log.d(TAG, "updateByRemoteId()");
+
 		T localResource = findByRemoteId(remoteResource.getId(), false);
+
+		Log.d(TAG, "Before update");
+		Log.d(TAG, resourceToString(localResource));
+
 		pendingOperations.add(
 				buildEntry(ContentProviderOperation.newUpdate(ContentUris.withAppendedId(entriesURI(), localResource.getLocalID())), remoteResource)
-				.withValue(entryColumnETag(), remoteResource.getETag())
-				.withYieldAllowed(true)
-				.build());
-		
+						.withValue(entryColumnETag(), remoteResource.getETag())
+						.withYieldAllowed(true)
+						.build());
+
 		removeDataRows(localResource);
 		addDataRows(remoteResource, localResource.getLocalID(), -1);
 	}
 
 	public void delete(Resource resource) {
+		Log.d(TAG, "delete()");
+		try {
+			Log.d(TAG, "Before update");
+			Log.d(TAG, resourceToString(resource));
+		} catch (LocalStorageException e) {
+			//Fail quietly
+		}
+
 		pendingOperations.add(ContentProviderOperation
 				.newDelete(ContentUris.withAppendedId(entriesURI(), resource.getLocalID()))
 				.withYieldAllowed(true)
@@ -239,6 +262,14 @@ public abstract class LocalCollection<T extends Resource> {
 	public abstract void deleteAllExceptUIDs(String[] ids);
 	
 	public void clearDirty(Resource resource) {
+		Log.d(TAG, "clearDirty()");
+		try {
+			Log.d(TAG, "Before update");
+			Log.d(TAG, resourceToString(resource));
+		} catch (LocalStorageException e) {
+			//Fail quietly
+		}
+
 		pendingOperations.add(ContentProviderOperation
 				.newUpdate(ContentUris.withAppendedId(entriesURI(), resource.getLocalID()))
 				.withValue(entryColumnDirty(), 0)
@@ -249,6 +280,9 @@ public abstract class LocalCollection<T extends Resource> {
 		if (!pendingOperations.isEmpty())
 			try {
 				Log.d(TAG, "Committing " + pendingOperations.size() + " operations");
+				for (ContentProviderOperation op: pendingOperations) {
+					Log.d(TAG, String.format("%s: %s", (op.isWriteOperation() ? "Write" : "Read"), op.getUri().toString()));
+				}
 				providerClient.applyBatch(pendingOperations);
 				pendingOperations.clear();
 			} catch (RemoteException ex) {

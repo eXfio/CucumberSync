@@ -42,6 +42,7 @@ public class ServerInfo implements Serializable {
 	private String accountParams;
 	
 	private ResourceInfo addressBook;
+	private ResourceInfo calendar;
 	private String errorMessage;
 	
 	public void setAccountParams(Properties prop) throws IOException {
@@ -72,6 +73,9 @@ public class ServerInfo implements Serializable {
 		final String       collection;
 		final String       title;
 		final String       description;
-		final String       color;		
+
+		//Calendar specific properties
+		final String       color;
+		final String       timezone;
 	}
 }

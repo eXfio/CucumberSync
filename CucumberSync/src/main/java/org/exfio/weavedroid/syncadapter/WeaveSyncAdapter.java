@@ -347,9 +347,6 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 			Log.i(TAG, "Nothing to synchronize");
 		else {
 			try {
-				// prevent weave http client shutdown until we're ready
-				weaveClient.lock();
-				
 				for (Map.Entry<LocalCollection<?>, WeaveCollection<?>> entry : syncCollections.entrySet())
 					new SyncManager(entry.getKey(), entry.getValue()).synchronize(extras.containsKey(ContentResolver.SYNC_EXTRAS_MANUAL), syncResult);
 				
@@ -379,7 +376,6 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 //				Log.e(TAG, "I/O error (Android will try again later)", ex);
 			} finally {
 				// close weave http client
-				weaveClient.unlock();
 				closeWeaveClient();
 			}
 		}

@@ -69,7 +69,7 @@ import ezvcard.property.Telephone;
 import org.exfio.weavedroid.syncadapter.AccountSettings;
 
 public class LocalAddressBook extends LocalCollection<Contact> {
-	private final static String TAG = "weavedroid.LocalAddressBook";
+	private final static String TAG = "weavedroid.LocalABook";
 	
 	protected final static String COLUMN_UNKNOWN_PROPERTIES = RawContacts.SYNC3;
 
@@ -97,7 +97,9 @@ public class LocalAddressBook extends LocalCollection<Contact> {
 
 	protected String entryColumnUID()			{ return RawContacts.SYNC1; }
 
-
+	protected String resourceToString(Resource resource) throws LocalStorageException {
+		return "Contact:\nNOT YET IMPLEMENTED";
+	}
 
 	public LocalAddressBook(Account account, ContentProviderClient providerClient, AccountSettings accountSettings) {
 		super(account, providerClient);

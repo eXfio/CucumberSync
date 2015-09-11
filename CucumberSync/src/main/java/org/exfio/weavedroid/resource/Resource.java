@@ -26,6 +26,21 @@ public abstract class Resource {
 	@Getter @Setter protected String ETag;
 	@Getter @Setter protected long   localID;
 
+	/*
+	public Resource() {
+		this.id      = null;
+		this.uid     = null;
+		this.ETag    = null;
+		this.localID = 0;
+	}
+	*/
+
+	public Resource(Resource resource) {
+		this.localID = resource.localID;
+		this.id      = resource.id;
+		this.ETag    = resource.ETag;
+	}
+
 	public Resource(String id, String ETag) {
 		this.id = id;
 		this.ETag = ETag;

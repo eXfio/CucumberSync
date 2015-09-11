@@ -18,6 +18,7 @@ import android.accounts.AccountManager;
 import android.app.Fragment;
 import android.content.ContentResolver;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -35,6 +36,7 @@ import org.exfio.weave.account.WeaveAccount;
 import org.exfio.weave.account.WeaveAccountParams;
 import org.exfio.weave.account.legacy.LegacyV5Account;
 import org.exfio.weavedroid.R;
+import org.exfio.weavedroid.resource.LocalCalendar;
 import org.exfio.weavedroid.util.Log;
 
 import java.util.Properties;
@@ -81,15 +83,15 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 	void addAccount() {
 		ServerInfo serverInfo = (ServerInfo)getArguments().getSerializable(AccountSettings.KEY_SERVER_INFO);
 		try {
-			String accountName      = editAccountName.getText().toString();
-			String accountType      = serverInfo.getAccountType();
+			String accountName = editAccountName.getText().toString();
+			String accountType = serverInfo.getAccountType();
 			Properties propSettings = serverInfo.getAccountParamsAsProperties();
 
 			AccountSettings settings = null;
 
-			if ( accountType.equals(org.exfio.weavedroid.Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
+			if (accountType.equals(org.exfio.weavedroid.Constants.ACCOUNT_TYPE_FXACCOUNT)) {
 				settings = new FxAccountAccountSettings();
-			} else if ( accountType.equals(org.exfio.weavedroid.Constants.ACCOUNT_TYPE_LEGACYV5) ) {
+			} else if (accountType.equals(org.exfio.weavedroid.Constants.ACCOUNT_TYPE_LEGACYV5)) {
 				settings = new LegacyV5AccountSettings();
 			} else {
 				settings = new ExfioPeerAccountSettings();
@@ -151,11 +153,23 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 				return;
 			}
 
+			//Register addressbook
 			if (serverInfo.getAddressBook().isEnabled()) {
 				ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 1);
 				ContentResolver.setSyncAutomatically(account, ContactsContract.AUTHORITY, true);
 			} else {
 				ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 0);
+			}
+
+			//TODO - support multiple calendars
+
+			//Register calendar
+			if (serverInfo.getCalendar().isEnabled()) {
+				LocalCalendar.create(account, getActivity().getContentResolver(), serverInfo.getCalendar());
+				ContentResolver.setIsSyncable(account, CalendarContract.AUTHORITY, 1);
+				ContentResolver.setSyncAutomatically(account, CalendarContract.AUTHORITY, true);
+			} else {
+				ContentResolver.setIsSyncable(account, CalendarContract.AUTHORITY, 0);
 			}
 
 			getActivity().finish();
