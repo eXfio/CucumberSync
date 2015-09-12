@@ -1,5 +1,22 @@
 apply plugin: 'com.android.application'
 
+//Helper methods
+configure(project.rootProject) {
+    ext.getEnvOrPrompt = { key,msg,isPassword,defValue ->
+        if (System.getenv(key)) {
+            System.getenv(key)
+        } else if (System.hasProperty('console') && System.console() != null) {
+            if (isPassword) {
+                new String(System.console().readPassword("\n\$ " + msg + ": "))
+            } else {
+                System.console().readLine("\n\$ " + msg + ": ")
+            }
+        } else {
+            defValue
+        }
+    }
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion '21.1.2'
@@ -33,12 +50,23 @@ android {
         exclude 'commons-codec.license'
     }
 
-    buildTypes {
+    signingConfigs {
+
         release {
-            minifyEnabled false
+            storeFile     file(getEnvOrPrompt("KEYSTORE", "Enter keystore path", false, "android.keystore"))
+            storePassword getEnvOrPrompt("KEYSTORE_PASSWORD", "Enter keystore password", true, null)
+            keyAlias      getEnvOrPrompt("KEY_ALIAS", "Enter key alias", false, null)
+            keyPassword   getEnvOrPrompt("KEY_PASSWORD", "Enter key password", true, null)
         }
+    }
+
+    buildTypes {
         debug {
             minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
         }
     }
 }
