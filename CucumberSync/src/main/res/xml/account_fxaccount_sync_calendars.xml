@@ -1,5 +1,5 @@
 <sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="org.exfio.weavedroid.fxaccount"
+    android:accountType="org.exfio.csyncdroid.fxaccount"
     android:contentAuthority="com.android.calendar"
     android:allowParallelSyncs="true"
     android:supportsUploading="true"

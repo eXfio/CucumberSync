@@ -3,8 +3,8 @@
 
     <Preference android:title="@string/weavedroid_help" >
         <intent
-            android:targetPackage="org.exfio.weavedroid"
-            android:targetClass="org.exfio.weavedroid.MainActivity"
+            android:targetPackage="org.exfio.csyncdroid"
+            android:targetClass="org.exfio.csyncdroid.MainActivity"
             android:action="ACTION_VIEW" />
     </Preference>
 

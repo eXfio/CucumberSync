@@ -1,5 +1,5 @@
 <sync-adapter xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="org.exfio.weavedroid.legacyv5"
+    android:accountType="org.exfio.csyncdroid.legacyv5"
     android:contentAuthority="com.android.contacts"
     android:allowParallelSyncs="true"
     android:supportsUploading="true"

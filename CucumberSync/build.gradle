@@ -22,7 +22,7 @@ android {
     buildToolsVersion '21.1.2'
 
     defaultConfig {
-        applicationId "org.exfio.weavedroid"
+        applicationId "org.exfio.csyncdroid"
         minSdkVersion 14
         targetSdkVersion 21
         multiDexEnabled = true

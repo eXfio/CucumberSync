@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.exfio.weavedroid"
+    package="org.exfio.csyncdroid"
     android:versionCode="6"
     android:versionName="1.2-alpha-1" android:installLocation="internalOnly">
 
@@ -27,7 +27,7 @@
 
         <!-- Deprecate ExfioPeer and LegacyV5 support
         <service
-            android:name="org.exfio.weavedroid.syncadapter.ExfioPeerAccountAuthenticatorService"
+            android:name="org.exfio.csyncdroid.syncadapter.ExfioPeerAccountAuthenticatorService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -38,7 +38,7 @@
                 android:resource="@xml/account_exfiopeer_authenticator" />
         </service>
         <service 
-            android:name="org.exfio.weavedroid.syncadapter.ExfioPeerContactsSyncAdapterService" 
+            android:name="org.exfio.csyncdroid.syncadapter.ExfioPeerContactsSyncAdapterService"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
@@ -53,7 +53,7 @@
         </service>
         
         <service
-            android:name="org.exfio.weavedroid.syncadapter.LegacyV5AccountAuthenticatorService"
+            android:name="org.exfio.csyncdroid.syncadapter.LegacyV5AccountAuthenticatorService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -64,7 +64,7 @@
                 android:resource="@xml/account_legacyv5_authenticator" />
         </service>
         <service 
-            android:name="org.exfio.weavedroid.syncadapter.LegacyV5ContactsSyncAdapterService" 
+            android:name="org.exfio.csyncdroid.syncadapter.LegacyV5ContactsSyncAdapterService"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
@@ -80,7 +80,7 @@
         -->
 
         <service
-            android:name="org.exfio.weavedroid.syncadapter.FxAccountAccountAuthenticatorService"
+            android:name="org.exfio.csyncdroid.syncadapter.FxAccountAccountAuthenticatorService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
@@ -91,7 +91,7 @@
                 android:resource="@xml/account_fxaccount_authenticator" />
         </service>
         <service 
-            android:name="org.exfio.weavedroid.syncadapter.FxAccountContactsSyncAdapterService" 
+            android:name="org.exfio.csyncdroid.syncadapter.FxAccountContactsSyncAdapterService"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
@@ -105,7 +105,7 @@
                 android:resource="@xml/contacts" /> 
         </service>
         <service
-            android:name="org.exfio.weavedroid.syncadapter.FxAccountCalendarsSyncAdapterService"
+            android:name="org.exfio.csyncdroid.syncadapter.FxAccountCalendarsSyncAdapterService"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
@@ -117,7 +117,7 @@
         </service>
 
         <activity
-            android:name="org.exfio.weavedroid.MainActivity"
+            android:name="org.exfio.csyncdroid.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -125,19 +125,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.exfio.weavedroid.syncadapter.AddAccountActivity"
+            android:name="org.exfio.csyncdroid.syncadapter.AddAccountActivity"
             android:excludeFromRecents="true" >
         </activity>
 
         <!-- Deprecate ExfioPeer and LegacyV5 support
         <activity
-            android:name="org.exfio.weavedroid.ReceivedClientAuth"
-            android:parentActivityName="org.exfio.weavedroid.MainActivity"
+            android:name="org.exfio.csyncdroid.ReceivedClientAuth"
+            android:parentActivityName="org.exfio.csyncdroid.MainActivity"
             android:excludeFromRecents="true">
         </activity>
         <activity
-            android:name="org.exfio.weavedroid.PendingClientAuth"
-            android:parentActivityName="org.exfio.weavedroid.MainActivity"
+            android:name="org.exfio.csyncdroid.PendingClientAuth"
+            android:parentActivityName="org.exfio.csyncdroid.MainActivity"
             android:excludeFromRecents="true">
         </activity>
         -->

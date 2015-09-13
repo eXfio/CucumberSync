@@ -1,5 +1,5 @@
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accountType="org.exfio.weavedroid.fxaccount"
+    android:accountType="org.exfio.csyncdroid.fxaccount"
     android:icon="@drawable/ic_launcher"
     android:label="@string/weavedroid_account_fxaccount"
     android:smallIcon="@drawable/ic_launcher"
