@@ -93,13 +93,6 @@ public class MainActivity extends Activity {
 		startActivity(intent);
 	}
 
-	public void showWebsite(MenuItem item) {
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse(Constants.WEB_URL_HELP + "&pk_kwd=main-activity"));
-		startActivity(intent);
-	}
-	
-	
 	private boolean fromPlayStore() {
 		try {
 			return "com.android.vending".equals(getPackageManager().getInstallerPackageName("org.exfio.csyncdroid"));

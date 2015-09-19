@@ -52,9 +52,13 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+		serverInfo = (ServerInfo)getArguments().getSerializable(AccountSettings.KEY_SERVER_INFO);
+
 		View v = inflater.inflate(R.layout.account_details, container, false);
 		
 		editAccountName = (EditText)v.findViewById(R.id.account_name);
+		editAccountName.setText(serverInfo.getAccountName());
 		editAccountName.addTextChangedListener(this);
 
 		setHasOptionsMenu(true);
@@ -83,7 +87,7 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 	// actions
 	
 	void addAccount() {
-		ServerInfo serverInfo = (ServerInfo)getArguments().getSerializable(AccountSettings.KEY_SERVER_INFO);
+
 		try {
 			String accountName = editAccountName.getText().toString();
 			String accountType = serverInfo.getAccountType();

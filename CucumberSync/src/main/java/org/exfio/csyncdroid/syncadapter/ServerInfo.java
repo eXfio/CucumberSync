@@ -42,6 +42,7 @@ public class ServerInfo implements Serializable {
 	
 	private String accountType;
 	private String guid;
+	private String accountName;
 	
 	@Getter(AccessLevel.NONE)
 	@Setter(AccessLevel.NONE)

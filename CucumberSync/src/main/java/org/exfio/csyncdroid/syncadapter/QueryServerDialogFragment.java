@@ -373,6 +373,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 
 					serverInfo.setAccountType(accountType);
 					serverInfo.setGuid(guid);
+					serverInfo.setAccountName(account.getAccountParams().user);
 					serverInfo.setAccountParams(account.accountParamsToProperties());
 
 					// Initialise contacts
@@ -380,8 +381,8 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 						Constants.ResourceType.ADDRESS_BOOK,
 						false,
 						Constants.ADDRESSBOOK_COLLECTION,
-						"CucumberSync Contacts",
-						"CucumberSync Contacts",
+						"Cucumber Sync",
+						"Cucumber Sync Contacts",
 						null,
 						null
 					);
@@ -394,8 +395,8 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 						Constants.ResourceType.CALENDAR,
 						false,
 						Constants.CALENDAR_COLLECTION,
-						"CucumberSync Calendar",
-						"CucumberSync Calendar",
+						"Cucumber Sync",
+						"Cucumber Sync Calendar",
 						null,
 						TimeZone.getDefault().getID()
 					);
