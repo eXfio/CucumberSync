@@ -1,16 +1,22 @@
-/*******************************************************************************
- * Copyright (c) 2014 Gerry Healy <nickel_chrome@mac.com>
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Based on DavDroid:
- *     Richard Hirner (bitfire web engineering)
- * 
- * Contributors:
- *     Gerry Healy <nickel_chrome@mac.com> - Initial implementation
- ******************************************************************************/
+/*
+ * Copyright (C) 2015 Gerry Healy <nickel_chrome@exfio.org> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This program is derived from DavDroid, Copyright (C) 2014 Richard Hirner, bitfire web engineering
+ * DavDroid is distributed under the terms of the GNU Public License v3.0, https://github.com/bitfireAT/davdroid
+ */
 package org.exfio.csyncdroid;
 
 import android.accounts.AccountManager;
@@ -39,7 +45,7 @@ import org.exfio.weave.client.WeaveClientFactory;
 import org.exfio.csyncdroid.syncadapter.ExfioPeerAccountSettings;
 import org.exfio.csyncdroid.util.SystemUtils;
 
-public class ReceivedClientAuth extends Activity implements LoaderCallbacks<WeaveDroidReturnValue> {
+public class ReceivedClientAuth extends Activity implements LoaderCallbacks<CSyncReturnValue> {
 	
 	private final static String TAG = "ReceivedClientAuth";
 	
@@ -64,7 +70,7 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 	public void onCreate(Bundle savedInstanceState) {		
 		super.onCreate(savedInstanceState);
 		
-		final String TAG = "weavedroid.ReceivedClientAuth";
+		final String TAG = "csyncdroid.ReceivedClientAuth";
 		
 		// First check we have received extras from notification
 		Bundle extras = getIntent().getExtras();
@@ -89,7 +95,7 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 		clientName  = extras.getString(KEY_EXTRA_CLIENTNAME);
 		
 		TextView t = (TextView)findViewById(R.id.received_ca_text);		
-		t.setText(String.format("'%s' is requesting authentication for WeaveDroid account '%s'", clientName, accountName));
+		t.setText(String.format("'%s' is requesting authentication for CucumberSync account '%s'", clientName, accountName));
 
 		//We need to assign context to variable for use in closure
 		final ReceivedClientAuth thisObject = this;
@@ -128,12 +134,12 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 
 	}
 
-	public Loader<WeaveDroidReturnValue> onCreateLoader(int id, Bundle args) {
+	public Loader<CSyncReturnValue> onCreateLoader(int id, Bundle args) {
 		Log.d(TAG, "onCreateLoader()");
 		return new ClientAuthResponseLoader(this, args);
 	}
 
-	public void onLoadFinished(Loader<WeaveDroidReturnValue> loader, WeaveDroidReturnValue retval) {
+	public void onLoadFinished(Loader<CSyncReturnValue> loader, CSyncReturnValue retval) {
 		Log.d(TAG, "onLoadFinished()");
 
 		textError.setText("");
@@ -150,11 +156,11 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 		}
 	}
 
-	public void onLoaderReset(Loader<WeaveDroidReturnValue> loader) {
+	public void onLoaderReset(Loader<CSyncReturnValue> loader) {
 		Log.d(TAG, "onLoaderReset()");
 	}
 
-	static class ClientAuthResponseLoader extends AsyncTaskLoader<WeaveDroidReturnValue> {
+	static class ClientAuthResponseLoader extends AsyncTaskLoader<CSyncReturnValue> {
 		private static final String TAG = "exfio.ClientAuthResponseLoader";
 		Bundle args;
 		
@@ -164,7 +170,7 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 		}
 
 		@Override
-		public WeaveDroidReturnValue loadInBackground() {
+		public CSyncReturnValue loadInBackground() {
 			Log.d(TAG, "LoadInBackgroud()");
 			
 			//DEBUG only
@@ -172,7 +178,7 @@ public class ReceivedClientAuth extends Activity implements LoaderCallbacks<Weav
 				org.exfio.csyncdroid.util.Log.init("debug");
 			}
 			
-			WeaveDroidReturnValue retval = new WeaveDroidReturnValue();
+			CSyncReturnValue retval = new CSyncReturnValue();
 		
 			String accountName = args.getString(KEY_LOADER_ACCOUNTNAME);
 			String sessionId   = args.getString(KEY_LOADER_SESSIONID);

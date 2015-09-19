@@ -1,16 +1,22 @@
-/*******************************************************************************
- * Copyright (c) 2014 Gerry Healy <nickel_chrome@mac.com>
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Based on DavDroid:
- *     Richard Hirner (bitfire web engineering)
- * 
- * Contributors:
- *     Gerry Healy <nickel_chrome@mac.com> - Initial implementation
- ******************************************************************************/
+/*
+ * Copyright (C) 2015 Gerry Healy <nickel_chrome@exfio.org> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This program is derived from DavDroid, Copyright (C) 2014 Richard Hirner, bitfire web engineering
+ * DavDroid is distributed under the terms of the GNU Public License v3.0, https://github.com/bitfireAT/davdroid
+ */
 package org.exfio.csyncdroid.resource;
 
 import java.io.ByteArrayInputStream;
@@ -62,10 +68,10 @@ import org.exfio.csyncdroid.Constants;
 
 @ToString(callSuper = true)
 public class Contact extends Resource {
-	private final static String TAG = "weavedroid.Contact";
+	private final static String TAG = "csyncdroid.Contact";
 	
 	public final static String
-		PROPERTY_STARRED = "X-WEAVEDROID-STARRED",
+		PROPERTY_STARRED = "X-EXFIO-STARRED",
 		PROPERTY_PHONETIC_FIRST_NAME = "X-PHONETIC-FIRST-NAME",
 		PROPERTY_PHONETIC_MIDDLE_NAME = "X-PHONETIC-MIDDLE-NAME",
 		PROPERTY_PHONETIC_LAST_NAME = "X-PHONETIC-LAST-NAME",
@@ -442,7 +448,7 @@ public class Contact extends Resource {
 			vcard.addPhoto(new Photo(photo, ImageType.JPEG));
 		
 		// PRODID, REV
-		vcard.setProductId("WeaveDroid/" + Constants.APP_VERSION + " (ez-vcard/" + Ezvcard.VERSION + ")");
+		vcard.setProductId("CucumberSync/" + Constants.APP_VERSION + " (ez-vcard/" + Ezvcard.VERSION + ")");
 		vcard.setRevision(Revision.now());
 		
 		return vcard;

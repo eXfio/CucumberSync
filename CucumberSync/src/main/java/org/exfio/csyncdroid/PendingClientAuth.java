@@ -1,16 +1,22 @@
-/*******************************************************************************
- * Copyright (c) 2014 Gerry Healy <nickel_chrome@mac.com>
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the GNU Public License v3.0
- * which accompanies this distribution, and is available at
- * http://www.gnu.org/licenses/gpl.html
- * 
- * Based on DavDroid:
- *     Richard Hirner (bitfire web engineering)
- * 
- * Contributors:
- *     Gerry Healy <nickel_chrome@mac.com> - Initial implementation
- ******************************************************************************/
+/*
+ * Copyright (C) 2015 Gerry Healy <nickel_chrome@exfio.org> and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This program is derived from DavDroid, Copyright (C) 2014 Richard Hirner, bitfire web engineering
+ * DavDroid is distributed under the terms of the GNU Public License v3.0, https://github.com/bitfireAT/davdroid
+ */
 package org.exfio.csyncdroid;
 
 import android.os.Bundle;
@@ -43,7 +49,7 @@ public class PendingClientAuth extends Activity {
 		String authCode    = extras.getString(KEY_EXTRA_AUTHCODE);
 		setContentView(R.layout.pending_client_auth);
 		TextView t = (TextView)findViewById(R.id.pending_ca_text);		
-		t.setText(String.format("Enter authcode '%s' on an authenticated device to approve acces to WeaveDroid account '%s'", authCode, accountName));
+		t.setText(String.format("Enter authcode '%s' on an authenticated device to approve access to CucumberSync account '%s'", authCode, accountName));
 
 		// Remove notification now user has acknowledged it
 		int notificationId = extras.getInt(KEY_EXTRA_NOTIFICATIONID);

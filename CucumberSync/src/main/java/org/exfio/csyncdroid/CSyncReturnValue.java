@@ -17,16 +17,31 @@
  * This program is derived from DavDroid, Copyright (C) 2014 Richard Hirner, bitfire web engineering
  * DavDroid is distributed under the terms of the GNU Public License v3.0, https://github.com/bitfireAT/davdroid
  */
-package org.exfio.csyncdroid.resource;
+package org.exfio.csyncdroid;
 
-public class InvalidResourceException extends Exception {
-	private static final long serialVersionUID = 1593585432655578220L;
+public class CSyncReturnValue {
+	private Exception exception = null;
+	private String message      = null;
 	
-	public InvalidResourceException(String message) {
-		super(message);
+	public void setException(Exception e) {
+		this.exception = e;
+		this.message   = e.getMessage();
 	}
 
-	public InvalidResourceException(Throwable throwable) {
-		super(throwable);
+	public Exception getException() {
+		return exception;
+	}
+
+	public void setMessage(String message) {
+		this.exception = null;
+		this.message   = message;
+	}
+
+	public String getMessage() {
+		if ( exception != null ) {
+			return String.format("%s - %s", exception.getClass().getName(), message);
+		} else {
+			return message;
+		}
 	}
 }
