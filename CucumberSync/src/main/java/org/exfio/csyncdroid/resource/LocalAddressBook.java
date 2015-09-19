@@ -73,6 +73,7 @@ import ezvcard.property.Impp;
 import ezvcard.property.Telephone;
 
 import org.exfio.csyncdroid.syncadapter.AccountSettings;
+import org.exfio.weave.util.SQLUtils;
 
 public class LocalAddressBook extends LocalCollection<Contact> {
 	private final static String TAG = "csyncdroid.LocalABook";
@@ -137,14 +138,11 @@ public class LocalAddressBook extends LocalCollection<Contact> {
 		return new Contact(localID, resourceName, eTag);
 	}
 	
-	public void deleteAllExceptRemoteNames(Resource[] remoteResources) {
+	public void deleteAllExceptRemoteIds(String[] preserveIds) {
 		String where;
 		
-		if (remoteResources.length != 0) {
-			List<String> sqlFileNames = new LinkedList<String>();
-			for (Resource res : remoteResources)
-				sqlFileNames.add(DatabaseUtils.sqlEscapeString(res.getId()));
-			where = entryColumnRemoteId() + " NOT IN (" + StringUtils.join(sqlFileNames, ",") + ")";
+		if (preserveIds.length != 0) {
+			where = entryColumnRemoteId() + " NOT IN (" + SQLUtils.quoteArray(preserveIds) + ")";
 		} else
 			where = entryColumnRemoteId() + " IS NOT NULL";
 			
@@ -154,14 +152,11 @@ public class LocalAddressBook extends LocalCollection<Contact> {
 				.build());
 	}
 
-	public void deleteAllExceptUIDs(String[] ids) {
+	public void deleteAllExceptUIDs(String[] preserveUids) {
 		String where;
 		
-		if (ids.length != 0) {
-			List<String> sqlFileNames = new LinkedList<String>();
-			for (String id : ids)
-				sqlFileNames.add(DatabaseUtils.sqlEscapeString(id));
-			where = entryColumnUID() + " NOT IN (" + StringUtils.join(sqlFileNames, ",") + ")";
+		if (preserveUids.length != 0) {
+			where = entryColumnUID() + " NOT IN (" + SQLUtils.quoteArray(preserveUids) + ")";
 		} else
 			where = entryColumnUID() + " IS NOT NULL";
 			

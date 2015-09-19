@@ -80,7 +80,7 @@ dependencies {
     compile 'junit:junit:4.12'
 
     //weaveclient library
-    compile('org.exfio:weaveclient:1.0.0-alpha-3') {
+    compile('org.exfio:weaveclient:1.1.0-alpha-1') {
         //exclude android provided and non-android libraries
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
         exclude group: 'org.apache.httpcomponents', module: 'httpcore'

@@ -20,6 +20,7 @@
 package org.exfio.csyncdroid.resource;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Cleanup;
 import android.accounts.Account;
@@ -264,8 +265,15 @@ public abstract class LocalCollection<T extends Resource> {
 				.build());
 	}
 
-	public abstract void deleteAllExceptRemoteNames(Resource[] remoteResources);
-	public abstract void deleteAllExceptUIDs(String[] ids);
+	public void deleteAllExceptRemoteIds(Resource[] remoteResources) {
+		List<String> ids = new ArrayList<String>();
+		for (Resource res: remoteResources) {
+			ids.add(res.getId());
+		}
+		deleteAllExceptRemoteIds(ids.toArray(new String[0]));
+	}
+	public abstract void deleteAllExceptRemoteIds(String[] ids);
+	public abstract void deleteAllExceptUIDs(String[] uids);
 	
 	public void clearDirty(Resource resource) {
 		Log.d(TAG, "clearDirty()");

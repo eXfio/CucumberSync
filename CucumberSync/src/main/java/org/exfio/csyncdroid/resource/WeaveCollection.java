@@ -83,6 +83,6 @@ public abstract class WeaveCollection<T extends Resource> {
 	public abstract void delete(String id) throws WeaveException, NotFoundException;
 	
 	public void delete(Resource res) throws WeaveException, NotFoundException {
-		delete(res.getUid());
+		delete(res.getId());
 	}
 }

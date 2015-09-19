@@ -105,7 +105,7 @@ public class SyncManager {
 		
 		for (String id: remoteResourceIds) {
 			try {
-				Resource localResource = local.findByUID(id, false);
+				Resource localResource = local.findByRemoteId(id, false);
 				if (localResource != null) {
 					remotelyUpdated.add(id);
 				}
@@ -122,7 +122,7 @@ public class SyncManager {
 		syncResult.stats.numEntries += syncResult.stats.numInserts + syncResult.stats.numUpdates;
 		
 		Log.i(TAG, "Removing non-dirty resources that are not present remotely anymore");
-		local.deleteAllExceptUIDs(remoteResourceIds);
+		local.deleteAllExceptRemoteIds(remoteResourceIds);
 		local.commit();
 
 		// update collection CTag
@@ -150,7 +150,7 @@ public class SyncManager {
 					// is this resource even present remotely?
 					if (res.getId() != null)	{
 						try {
-							remote.delete(res.getUid());
+							remote.delete(res.getId());
 						} catch (NotFoundException e) {
 							throw new WeaveException(e);
 						} catch (WeaveException e) {
@@ -220,7 +220,7 @@ public class SyncManager {
 	private int pullNew(Resource[] resources) throws LocalStorageException, WeaveException {
 		String[] ids = new String[resources.length];
 		for (int i = 0; i < resources.length; i++) {
-			ids[i] = resources[i].getUid();
+			ids[i] = resources[i].getId();
 		}
 		return pullNew(ids);
 	}
@@ -248,7 +248,7 @@ public class SyncManager {
 	private int pullChanged(Resource[] resources) throws LocalStorageException, WeaveException {
 		String[] ids = new String[resources.length];
 		for (int i = 0; i < resources.length; i++) {
-			ids[i] = resources[i].getUid();
+			ids[i] = resources[i].getId();
 		}
 		return pullChanged(ids);
 	}

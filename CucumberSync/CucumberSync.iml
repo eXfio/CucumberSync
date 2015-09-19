@@ -110,8 +110,8 @@
     <orderEntry type="library" exported="" name="biweekly-0.4.2" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="json-simple-1.1.1" level="project" />
-    <orderEntry type="library" exported="" name="weaveclient-1.0.0-alpha-3" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="commons-cli-1.2" level="project" />
+    <orderEntry type="library" exported="" name="weaveclient-1.1.0-alpha-1" level="project" />
   </component>
 </module>
