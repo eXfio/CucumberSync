@@ -28,7 +28,7 @@ public class Constants {
 	public static final String META_ID                = "exfio";
 	public static final String ADDRESSBOOK_COLLECTION = "exfiocontacts";
 	public static final String CALENDAR_COLLECTION    = "exfiocalendar";
-	public static final String WEB_URL_HELP           = "http://cucumbersync.exfio.org";
+	public static final String WEB_URL_HELP           = "https://exfio.org/cucumbersync";
 	public static enum ResourceType {
 		ADDRESS_BOOK,
 		CALENDAR
