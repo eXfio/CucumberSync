@@ -123,7 +123,8 @@
     <string name="received_ca_approve">Approve</string>
     <string name="csyncdroid_account_legacyv5">Cucumber Sync Weave</string>
     <string name="csyncdroid_account_exfiopeer">Cucumber Sync eXfio</string>
-    <string name="csyncdroid_account_fxaccount">Cucumber Sync</string>
+    <string name="csyncdroid_account_fxaccount">Cucumber Sync (FxA)</string>
+    <string name="csyncdroid_account_csync">Cucumber Sync</string>
     <string name="csyncdroid_account_name_hint">My Cucumber Sync Account</string>
     <string name="csyncdroid_help">Cucumber Sync Help</string>
 

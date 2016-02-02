@@ -41,12 +41,15 @@ public class AddAccountActivity extends Activity {
 		if (savedInstanceState == null) {	// first call
 			Fragment fragment = null;
 			String fragmentTag = null;
-			if ( accountType.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
-				fragment = new LegacyV5EnterCredentialsFragment();
-				fragmentTag = "enter_credentials_legacyv5";
+			if ( accountType.equals(Constants.ACCOUNT_TYPE_CSYNC) ) {
+				fragment = new CSyncEnterCredentialsFragment();
+				fragmentTag = "enter_credentials_csync";
 			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
 				fragment = new FxAccountEnterCredentialsFragment();
 				fragmentTag = "enter_credentials_fxaccount";
+			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
+				fragment = new LegacyV5EnterCredentialsFragment();
+				fragmentTag = "enter_credentials_legacyv5";
 			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_EXFIOPEER) ) {
 				fragment = new ExfioPeerEnterCredentialsFragment();
 				fragmentTag = "enter_credentials_exfiopeer";

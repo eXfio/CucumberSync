@@ -80,7 +80,8 @@ public class LocalAddressBook extends LocalCollection<Contact> {
 	
 	protected final static String COLUMN_UNKNOWN_PROPERTIES = RawContacts.SYNC3;
 
-	
+	protected String contentAuthority = "com.android.contacts";
+
 	protected AccountSettings accountSettings;
 	
 	
@@ -123,15 +124,15 @@ public class LocalAddressBook extends LocalCollection<Contact> {
 	
 	@Override
 	public Double getModifiedTime() {
-		return accountSettings.getModifiedTime();
+		return accountSettings.getModifiedTime(contentAuthority);
 	}
 
 	@Override
 	public void setModifiedTime(Double modified) {
-		accountSettings.setModifiedTime(modified);
+		accountSettings.setModifiedTime(contentAuthority, modified);
 	}
 
-	
+
 	/* create/update/delete */
 	
 	public Contact newResource(long localID, String resourceName, String eTag) {

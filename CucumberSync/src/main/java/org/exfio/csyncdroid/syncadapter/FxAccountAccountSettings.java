@@ -39,7 +39,7 @@ public class FxAccountAccountSettings extends AccountSettings {
 	private static final int SETTINGS_VERSION = 1;
 
 	public static final String DEFAULT_ACCOUNT_SERVER = "https://api.accounts.firefox.com/v1";
-	public static final String DEFAULT_TOKEN_SERVER   = "https://cucumbersync.com/syncserver/token/1.0/sync/1.5";
+	public static final String DEFAULT_TOKEN_SERVER   = "https://cucumbersync.com/token/1.0/sync/1.5";
 
 	public final static String
 	KEY_ACCOUNT_SERVER   = "accountserver",
@@ -51,16 +51,20 @@ public class FxAccountAccountSettings extends AccountSettings {
 	KEY_KB               = "kb",
 	KEY_SYNCTOKEN        = "synctoken";
 
+	// Allow subclasses, i.e. CSyncAccountSettings, to override account properties
+	protected static String accountType() { return Constants.ACCOUNT_TYPE_FXACCOUNT; }
+	protected static int settingsVersion() { return SETTINGS_VERSION; }
+
 	public FxAccountAccountSettings() {
 		super();
-		accountType     = Constants.ACCOUNT_TYPE_FXACCOUNT;
-		settingsVersion = SETTINGS_VERSION;
+		accountType     = accountType();
+		settingsVersion = settingsVersion();
 	}
 	
 	public FxAccountAccountSettings(Context context, Account account) {
 		super(context, account);
-		accountType     = Constants.ACCOUNT_TYPE_FXACCOUNT;
-		settingsVersion = SETTINGS_VERSION;
+		accountType     = accountType();
+		settingsVersion = settingsVersion();
 		checkVersion();
 	}
 

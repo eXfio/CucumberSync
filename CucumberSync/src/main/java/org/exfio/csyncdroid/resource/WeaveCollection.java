@@ -44,9 +44,13 @@ public abstract class WeaveCollection<T extends Resource> {
 	abstract protected String memberContentType();	
 	
 	/* collection operations */
-	
+
 	public Double getModifiedTime() throws WeaveException, NotFoundException {
-		if ( colinfo == null ) {
+		return getModifiedTime(false);
+	}
+
+	public Double getModifiedTime(boolean force) throws WeaveException, NotFoundException {
+		if ( colinfo == null || force ) {
 			colinfo = weaveClient.getCollectionInfo(collection);
 		}
 		return colinfo.getModified();

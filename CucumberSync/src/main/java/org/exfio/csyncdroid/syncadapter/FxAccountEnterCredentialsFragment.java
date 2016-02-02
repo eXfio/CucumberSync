@@ -51,12 +51,10 @@ import org.exfio.csyncdroid.R;
 public class FxAccountEnterCredentialsFragment extends Fragment implements TextWatcher {
 	String accountServerProtocol = "";
 	String tokenServerProtocol   = "";
-	
-	TextView textHttpWarning, labelSyncKey;
+
+	TextView textHttpWarning;
 	EditText editAccountServerUrl, editTokenServerUrl, editUserName, editPassword;
 	Spinner spnrAccountServerProtocol, spnrTokenServerProtocol;
-	Button btnNext;
-	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

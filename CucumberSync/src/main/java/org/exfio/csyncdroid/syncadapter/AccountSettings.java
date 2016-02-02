@@ -80,8 +80,8 @@ public abstract class AccountSettings {
 	
 	// Remote collection settings
 	
-	public Double getModifiedTime() {
-		String modified = accountManager.getUserData(account, KEY_MODIFIED_TIME);
+	public Double getModifiedTime(String collection) {
+		String modified = accountManager.getUserData(account, collection + "_" + KEY_MODIFIED_TIME);
 		if (modified == null || modified.equals("")) {
 			return 0D;
 		} else {
@@ -89,8 +89,8 @@ public abstract class AccountSettings {
 		}
 	}
 	
-	public void setModifiedTime(Double modified) {
-		accountManager.setUserData(account, KEY_MODIFIED_TIME, modified.toString());
+	public void setModifiedTime(String collection, Double modified) {
+		accountManager.setUserData(account, collection + "_" + KEY_MODIFIED_TIME, modified.toString());
 	}
 	
 	

@@ -71,6 +71,8 @@ public class MainActivity extends Activity {
 	
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	public void addAccount(MenuItem item) {
+		// FIXME - Show custom list of CucumberSync account types.
+		// See latest DavDroid code - https://gitlab.com/bitfireAT/davdroid/
 		Intent intent = new Intent(Settings.ACTION_ADD_ACCOUNT);
 		
 		//EXTRA_ACCOUNT_TYPES supported in JBMR2 and above
@@ -78,9 +80,10 @@ public class MainActivity extends Activity {
 			intent.putExtra(
 				Settings.EXTRA_ACCOUNT_TYPES,
 				new String[] {
-					Constants.ACCOUNT_TYPE_LEGACYV5
-					,Constants.ACCOUNT_TYPE_EXFIOPEER
+					Constants.ACCOUNT_TYPE_CSYNC
 					,Constants.ACCOUNT_TYPE_FXACCOUNT
+					,Constants.ACCOUNT_TYPE_LEGACYV5
+					,Constants.ACCOUNT_TYPE_EXFIOPEER
 				}
 			);
 	    }
@@ -89,6 +92,8 @@ public class MainActivity extends Activity {
 	}
 
 	public void showSyncSettings(MenuItem item) {
+		//FIXME - Show custom list of existing CucumberSync accounts. Or support single account only?
+		// See latest DavDroid code - https://gitlab.com/bitfireAT/davdroid/
 		Intent intent = new Intent(Settings.ACTION_SYNC_SETTINGS);
 		startActivity(intent);
 	}

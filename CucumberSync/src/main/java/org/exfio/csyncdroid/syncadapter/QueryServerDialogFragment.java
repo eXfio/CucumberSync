@@ -171,10 +171,10 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 			WeaveAccount account = null;
 			String errorMessage = null;
 
-			if ( accountType.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
+			if ( accountType.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) || accountType.equals(Constants.ACCOUNT_TYPE_CSYNC) ) {
 				//Initialise FxA account
 
-				//TODO - Support account creation
+				//TODO - Support account creation for CSync accounts
 				
 				//Get account params
 				String accountServer = args.getString(FxAccountAccountSettings.KEY_ACCOUNT_SERVER);

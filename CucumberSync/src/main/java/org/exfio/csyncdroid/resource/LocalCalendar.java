@@ -98,7 +98,10 @@ import org.exfio.weave.util.SQLUtils;
 public class LocalCalendar extends LocalCollection<Event> {
 	private static final String TAG = "csyncdroid.LocalCal";
 
+	//TODO - use CTAG or other content provider field for modified date?
 	protected static String COLLECTION_COLUMN_CTAG = Calendars.CAL_SYNC1;
+
+	protected String contentAuthority = "com.android.calendar";
 
 	@Getter protected long id;
 	@Getter protected String timeZone;
@@ -864,15 +867,14 @@ public class LocalCalendar extends LocalCollection<Event> {
 	protected Uri calendarsURI() {
 		return calendarsURI(account);
 	}
-	
+
 	@Override
 	public Double getModifiedTime() {
-		// TODO Auto-generated method stub
-		return null;
+		return accountSettings.getModifiedTime(contentAuthority);
 	}
 
 	@Override
 	public void setModifiedTime(Double modified) {
-		// TODO Auto-generated method stub
+		accountSettings.setModifiedTime(contentAuthority, modified);
 	}
 }

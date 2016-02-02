@@ -95,11 +95,13 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 
 			AccountSettings settings = null;
 
-			if (accountType.equals(org.exfio.csyncdroid.Constants.ACCOUNT_TYPE_FXACCOUNT)) {
+			if (accountType.equals(org.exfio.csyncdroid.Constants.ACCOUNT_TYPE_CSYNC)) {
+				settings = new CSyncAccountSettings();
+			} else if (accountType.equals(org.exfio.csyncdroid.Constants.ACCOUNT_TYPE_FXACCOUNT)) {
 				settings = new FxAccountAccountSettings();
 			} else if (accountType.equals(org.exfio.csyncdroid.Constants.ACCOUNT_TYPE_LEGACYV5)) {
 				settings = new LegacyV5AccountSettings();
-			} else {
+			} else if (accountType.equals(org.exfio.csyncdroid.Constants.ACCOUNT_TYPE_EXFIOPEER)) {
 				settings = new ExfioPeerAccountSettings();
 
 				//FIXME - Complete migration of this code from QueryServerDialogFrament
@@ -149,6 +151,9 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 
 				Log.i(TAG, String.format("Client auth request pending with auth code '%s'", authCode));
 				*/
+			} else {
+				Toast.makeText(getActivity(), String.format("Couldn't create account. Account type '%s' not recognised", accountType), Toast.LENGTH_LONG).show();
+				return;
 			}
 
 			Account account = null;

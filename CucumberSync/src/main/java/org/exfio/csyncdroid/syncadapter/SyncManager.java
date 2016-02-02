@@ -48,11 +48,22 @@ public class SyncManager {
 		this.remote = remote;
 	}
 
-	//TODO - Adapt for use with Weave Sync
 	public void synchronize(boolean manualSync, SyncResult syncResult) throws LocalStorageException, WeaveException {
 		Log.d(TAG, "synchronize()");
 
+		//PHASE 0: check modified times on local and remote collections
+		Double localModified = local.getModifiedTime();
+		Double remoteModified = null;
+		try {
+			remoteModified = remote.getModifiedTime();
+		} catch (NotFoundException e) {
+			//No exfiocontacts entries
+		}
+
 		// PHASE 1: push local changes to server
+		// NOTE: Currently the local changes always win. Should be remote changes win?
+		// FIXME - Implement concurrency and conflict management, i.e. use X-If-Unmodified-Since header and check for 412 status code
+		// See https://docs.services.mozilla.com/storage/apis-1.5.html#syncstorage-concurrency
 		int	deletedRemotely = pushDeleted();
 		int addedRemotely   = pushNew();
 		int updatedRemotely = pushDirty();
@@ -62,16 +73,8 @@ public class SyncManager {
 		// PHASE 2A: check if there's a reason to do a sync with remote (= forced sync or remote CTag changed)
 		boolean fetchCollection = false;
 
-		Double localModified = local.getModifiedTime();
-		Double remoteModified = null;
-		try {
-			remoteModified = remote.getModifiedTime();
-		} catch (NotFoundException e) {
-			//No exfiocontacts entries			
-		}
-		
 		//DEBUG only
-		localModified = 1400000000.00D;
+		//manualSync = true;
 
 		if (manualSync) {
 			Log.i(TAG, "Synchronization forced");
@@ -79,7 +82,7 @@ public class SyncManager {
 		} else if (syncResult.stats.numEntries > 0) {
 			Log.i(TAG, "Local changes found");
 			fetchCollection = true;
-		} else if (remoteModified == null || remoteModified != localModified) {
+		} else if (remoteModified == null || localModified == null || remoteModified > localModified) {
 			Log.i(TAG, "Remote changes found");
 			fetchCollection = true;
 		}
@@ -125,11 +128,13 @@ public class SyncManager {
 		local.deleteAllExceptRemoteIds(remoteResourceIds);
 		local.commit();
 
-		// update collection CTag
+		// update collection modified time
 		Log.i(TAG, "Sync complete, fetching new modified time");
 		try {
-			remoteModified = remote.getModifiedTime();
-			local.setModifiedTime(remote.getModifiedTime());
+			remoteModified = remote.getModifiedTime(true);
+			local.setModifiedTime(remoteModified);
+			localModified = local.getModifiedTime();
+			Log.d(TAG, String.format("local mod time: %.02f, remote mod time: %.02f", localModified, remoteModified));
 		} catch (NotFoundException e) {
 			//No exfiocontacts entries
 		} finally {

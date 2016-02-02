@@ -17,21 +17,12 @@
  * This program is derived from DavDroid, Copyright (C) 2014 Richard Hirner, bitfire web engineering
  * DavDroid is distributed under the terms of the GNU Public License v3.0, https://github.com/bitfireAT/davdroid
  */
-package org.exfio.csyncdroid;
+package org.exfio.csyncdroid.syncadapter;
 
-public class Constants {
-	public static final String APP_VERSION            = "1.4-beta-1";
-	public static final String ACCOUNT_TYPE_CSYNC     = "org.exfio.csyncdroid.csync";
-	public static final String ACCOUNT_TYPE_FXACCOUNT = "org.exfio.csyncdroid.fxaccount";
-	public static final String ACCOUNT_TYPE_LEGACYV5  = "org.exfio.csyncdroid.legacyv5";
-	public static final String ACCOUNT_TYPE_EXFIOPEER = "org.exfio.csyncdroid.exfiopeer";
-	public static final String META_COLLECTION        = "meta";
-	public static final String META_ID                = "exfio";
-	public static final String ADDRESSBOOK_COLLECTION = "exfiocontacts";
-	public static final String CALENDAR_COLLECTION    = "exfiocalendar";
-	public static final String WEB_URL_HELP           = "https://exfio.org/cucumbersync";
-	public static enum ResourceType {
-		ADDRESS_BOOK,
-		CALENDAR
-	}
+import org.exfio.csyncdroid.Constants;
+
+import lombok.Getter;
+
+public class CSyncAccountAuthenticatorService extends AccountAuthenticatorService {
+	@Getter private static final String accountType = Constants.ACCOUNT_TYPE_CSYNC;
 }

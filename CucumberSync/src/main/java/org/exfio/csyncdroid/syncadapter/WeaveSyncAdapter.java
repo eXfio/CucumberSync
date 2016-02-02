@@ -216,7 +216,7 @@ public abstract class WeaveSyncAdapter extends AbstractThreadedSyncAdapter imple
 
 		AccountSettings accountSettings = null;
 
-		if ( account.type.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
+		if ( account.type.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) || account.type.equals(Constants.ACCOUNT_TYPE_CSYNC) ) {
 			
 			FxAccountAccountSettings fxaSettings = new FxAccountAccountSettings(getContext(), account);
 			

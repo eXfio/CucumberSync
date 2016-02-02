@@ -71,12 +71,16 @@ public class CalendarsSyncAdapterService extends Service {
 			
 			AccountSettings settings = null;
 
-			if ( account.type.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
-				settings = new LegacyV5AccountSettings(getContext(), account);
+			if ( account.type.equals(Constants.ACCOUNT_TYPE_CSYNC) ) {
+				settings = new CSyncAccountSettings(getContext(), account);
 			} else if ( account.type.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) ) {
 				settings = new FxAccountAccountSettings(getContext(), account);
-			} else {
+			} else if ( account.type.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
+				settings = new LegacyV5AccountSettings(getContext(), account);
+			} else if ( account.type.equals(Constants.ACCOUNT_TYPE_EXFIOPEER) ) {
 				settings = new ExfioPeerAccountSettings(getContext(), account);
+			} else {
+				throw new WeaveException(String.format("Account type '%s' not recognised", account.type));
 			}
 
 			Map<LocalCollection<?>, WeaveCollection<?>> map = new HashMap<LocalCollection<?>, WeaveCollection<?>>();
