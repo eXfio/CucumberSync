@@ -19,11 +19,6 @@
  */
 package org.exfio.csyncdroid.syncadapter;
 
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.TimeZone;
-
 import android.app.DialogFragment;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -31,12 +26,17 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.TimeZone;
 
 import org.exfio.weave.WeaveException;
 import org.exfio.weave.account.WeaveAccount;
@@ -44,20 +44,29 @@ import org.exfio.weave.account.fxa.FxAccount;
 import org.exfio.weave.account.fxa.FxAccountParams;
 import org.exfio.weave.account.legacy.LegacyV5Account;
 import org.exfio.weave.account.legacy.LegacyV5AccountParams;
+
 import org.exfio.csyncdroid.Constants;
-import org.exfio.csyncdroid.util.SystemUtils;
 import org.exfio.csyncdroid.R;
 
 public class QueryServerDialogFragment extends DialogFragment implements LoaderCallbacks<ServerInfo> {
 	private static final String TAG = "exfio.QueryServerDialog";
 
-	ProgressBar progressBar;
-	
+	private static final int MSG_DISMISS_DIALOG = 1;
+
+	private Handler asyncMessageHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			if(msg.what == MSG_DISMISS_DIALOG) {
+				dismiss();
+			}
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Log.d(TAG, "onCreate()");
+		Log.v(TAG, "onCreate()");
 		
 		setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog);
 		setCancelable(false);
@@ -80,31 +89,31 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Log.d(TAG, "onCreateView()");
+		Log.v(TAG, "onCreateView()");
 		View v = inflater.inflate(R.layout.query_server, container, false);
 		return v;
 	}
 
 	@Override
 	public void onStart() {
-		Log.d(TAG, "onStart()");
+		Log.v(TAG, "onStart()");
 		super.onStart();
 
 		Loader<ServerInfo> loader = getLoaderManager().getLoader(0);
 		if ( loader == null || loader.isReset() || loader.isAbandoned() ) {
-			Log.d(TAG, "Couldn't reconnect to loader");
+			Log.e(TAG, "Couldn't reconnect to loader");
 			Toast.makeText(getActivity(), "Couldn't reconnect to loader", Toast.LENGTH_LONG).show();
-			getDialog().dismiss();
+			dismiss();
 		}
 	}
 
 	public Loader<ServerInfo> onCreateLoader(int id, Bundle args) {
-		Log.d(TAG, "onCreateLoader()");
+		Log.v(TAG, "onCreateLoader()");
 		return new ServerInfoLoader(getActivity(), args);
 	}
 
 	public void onLoadFinished(Loader<ServerInfo> loader, ServerInfo serverInfo) {
-		Log.d(TAG, "onLoadFinished()");
+		Log.v(TAG, "onLoadFinished()");
 
 		if (serverInfo.getErrorMessage() != null) {
 			Toast.makeText(getActivity(), serverInfo.getErrorMessage(), Toast.LENGTH_LONG).show();
@@ -122,11 +131,12 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 					.commitAllowingStateLoss();
 		}
 
-		getDialog().dismiss();
+		//getDialog().dismiss();
+		asyncMessageHandler.sendEmptyMessage(MSG_DISMISS_DIALOG);
 	}
 
 	public void onLoaderReset(Loader<ServerInfo> loader) {
-		Log.d(TAG, "onLoaderReset()");
+		Log.v(TAG, "onLoaderReset()");
 	}
 	
 	
@@ -144,7 +154,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 
 		@Override
 		protected void onStartLoading() {
-			Log.d(TAG, "onStartLoading()");
+			Log.v(TAG, "onStartLoading()");
 
 			// deliverResult() not automatically triggered after screen lock or returning from other activity
 			// http://stackoverflow.com/questions/7474756/onloadfinished-not-called-after-coming-back-from-a-home-button-press
@@ -155,73 +165,126 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 
 		@Override
 		public ServerInfo loadInBackground() {
-			Log.d(TAG, "LoadInBackgroud()");
-			
-			//DEBUG only
-			if ( SystemUtils.isDebuggable(getContext()) ) {
-				org.exfio.csyncdroid.util.Log.init("debug");
-				//org.exfio.weave.util.Log.init("debug");
-				//org.mozilla.gecko.background.common.log.Logger.init("debug");
-				//org.mozilla.gecko.background.common.log.Logger.setLogLevel("exfio.fxaclient", "debug");
-			}
-			
+			Log.v(TAG, "LoadInBackgroud()");
+
 			String accountType = args.getString(android.accounts.AccountManager.KEY_ACCOUNT_TYPE);
-			
+
 			String guid = null;
 			WeaveAccount account = null;
 			String errorMessage = null;
 
 			if ( accountType.equals(Constants.ACCOUNT_TYPE_FXACCOUNT) || accountType.equals(Constants.ACCOUNT_TYPE_CSYNC) ) {
-				//Initialise FxA account
 
-				//TODO - Support account creation for CSync accounts
-				
-				//Get account params
-				String accountServer = args.getString(FxAccountAccountSettings.KEY_ACCOUNT_SERVER);
-				String tokenServer   = args.getString(FxAccountAccountSettings.KEY_TOKEN_SERVER);
-				String username      = args.getString(FxAccountAccountSettings.KEY_USERNAME);
-				String password      = args.getString(FxAccountAccountSettings.KEY_PASSWORD);
-									
-				try {
-				
-					//Validate account params
-					if (
-						(accountServer == null || accountServer.isEmpty())
-						||
-						(tokenServer == null || tokenServer.isEmpty())
-						||
-						(username == null || username.isEmpty())
-						||
-						(password == null || password.isEmpty())
-					) {
-						throw new WeaveException("account-server, token-server, username and password are required parameters for account registration");
-					}
-		
-					//Validate URI syntax
+				if ( accountType.equals(Constants.ACCOUNT_TYPE_CSYNC) && args.getBoolean(CSyncAccountSettings.KEY_CREATE_ACCOUNT, false) ) {
+					//Create new CucumberSync account
+
+					//Get account params
+					String accountServer = args.getString(FxAccountAccountSettings.KEY_ACCOUNT_SERVER);
+					String tokenServer = args.getString(FxAccountAccountSettings.KEY_TOKEN_SERVER);
+					String username = args.getString(FxAccountAccountSettings.KEY_USERNAME);
+					String password = args.getString(FxAccountAccountSettings.KEY_PASSWORD);
+					String email = args.getString(FxAccountAccountSettings.KEY_EMAIL);
+
+					Log.v(TAG, String.format("Creating account - username: %s, password: %s, email: %s, account-server: %s, token-server: %s", username, password, email, accountServer, tokenServer));
+
 					try {
-						URI.create(accountServer);
-					} catch (IllegalArgumentException e) {
-						throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", accountServer));
-					}
-					try {
-						URI.create(tokenServer);
-					} catch (IllegalArgumentException e) {
-						throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", tokenServer));
+
+						//Validate account params
+						if (
+								(accountServer == null || accountServer.isEmpty())
+										||
+								(tokenServer == null || tokenServer.isEmpty())
+										||
+								(username == null || username.isEmpty())
+										||
+								(password == null || password.isEmpty())
+						) {
+							throw new WeaveException("account-server, token-server, username and password are required parameters for account creation");
+						}
+
+						//Validate URI syntax
+						try {
+							URI.create(accountServer);
+						} catch (IllegalArgumentException e) {
+							throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", accountServer));
+						}
+						try {
+							URI.create(tokenServer);
+						} catch (IllegalArgumentException e) {
+							throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", tokenServer));
+						}
+
+						//Initialise account
+						FxAccountParams fxaParams = new FxAccountParams();
+						fxaParams.accountServer = accountServer;
+						fxaParams.tokenServer = tokenServer;
+						fxaParams.user = username;
+						fxaParams.password = password;
+						fxaParams.email    = email;
+
+						account = new FxAccount();
+						account.createAccount(fxaParams);
+						account.init(fxaParams);
+
+						Log.i(TAG, String.format("Successfully created account for user: '%s'", username));
+
+					} catch (Exception e) {
+						Log.e(TAG, "Couldn't create account", e);
+						errorMessage = getContext().getString(R.string.exception_csyncdroid, e.getLocalizedMessage());
 					}
 
-					//Initialise account
-					FxAccountParams fxaParams = new FxAccountParams();
-					fxaParams.accountServer  = accountServer;
-					fxaParams.tokenServer    = tokenServer;
-					fxaParams.user           = username;
-					fxaParams.password       = password;
-					
-					account = new FxAccount();
-					account.init(fxaParams);
-					
-				} catch (Exception e) {
-					Log.e(TAG, "Error while querying server info", e);
-					errorMessage = getContext().getString(R.string.exception_csyncdroid, e.getLocalizedMessage());
+				} else {
+					//Initialise FxA or CucumberSync account
+
+					//Get account params
+					String accountServer = args.getString(FxAccountAccountSettings.KEY_ACCOUNT_SERVER);
+					String tokenServer = args.getString(FxAccountAccountSettings.KEY_TOKEN_SERVER);
+					String username = args.getString(FxAccountAccountSettings.KEY_USERNAME);
+					String password = args.getString(FxAccountAccountSettings.KEY_PASSWORD);
+
+					try {
+
+						//Validate account params
+						if (
+								(accountServer == null || accountServer.isEmpty())
+										||
+								(tokenServer == null || tokenServer.isEmpty())
+										||
+								(username == null || username.isEmpty())
+										||
+								(password == null || password.isEmpty())
+						) {
+							throw new WeaveException("account-server, token-server, username and password are required parameters for account registration");
+						}
+
+						//Validate URI syntax
+						try {
+							URI.create(accountServer);
+						} catch (IllegalArgumentException e) {
+							throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", accountServer));
+						}
+						try {
+							URI.create(tokenServer);
+						} catch (IllegalArgumentException e) {
+							throw new WeaveException(String.format("'%s' is not a valid URI, i.e. should be http(s)://example.com\n", tokenServer));
+						}
+
+						//Initialise account
+						FxAccountParams fxaParams = new FxAccountParams();
+						fxaParams.accountServer = accountServer;
+						fxaParams.tokenServer = tokenServer;
+						fxaParams.user = username;
+						fxaParams.password = password;
+
+						account = new FxAccount();
+						account.init(fxaParams);
+
+						Log.i(TAG, String.format("Successfully registered account for user: '%s'", username));
+
+					} catch (Exception e) {
+						Log.e(TAG, "Couldn't initialise account", e);
+						errorMessage = getContext().getString(R.string.exception_csyncdroid, e.getLocalizedMessage());
+					}
 				}
 
 			} else if ( accountType.equals(Constants.ACCOUNT_TYPE_LEGACYV5) ) {
@@ -412,7 +475,7 @@ public class QueryServerDialogFragment extends DialogFragment implements LoaderC
 				serverInfo.setErrorMessage(errorMessage);
 			}
 
-			Log.d(TAG, "Returning from LoadInBackgroud()");
+			Log.v(TAG, "Returning from LoadInBackgroud()");
 
 			return serverInfo;
 		}

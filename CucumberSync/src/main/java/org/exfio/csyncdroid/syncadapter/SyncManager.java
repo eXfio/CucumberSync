@@ -98,17 +98,19 @@ public class SyncManager {
 		Log.i(TAG, "Fetching remote resource list");
 		Set<String> remotelyAdded   = new HashSet<String>();
 		Set<String> remotelyUpdated = new HashSet<String>();
-		
-		String [] remoteResourceIds = null;
+
+		String [] modifiedResourceIds = null;
 		try {
-			remoteResourceIds = remote.getObjectIdsModifiedSince(localModified);
+			modifiedResourceIds = remote.getObjectIdsModifiedSince(localModified);
 		} catch (NotFoundException e) {
-			throw new WeaveException("Couldn't get modified objects", e);
+			throw new WeaveException("Couldn't get modified collection ids", e);
 		}
 		
-		for (String id: remoteResourceIds) {
+		for (String id: modifiedResourceIds) {
 			try {
 				Resource localResource = local.findByRemoteId(id, false);
+				//FIXME - also check modified field (e.g. ETag) to exclude resources we just pushed.
+				//For check to work will need to update modified field on local resources when pushing
 				if (localResource != null) {
 					remotelyUpdated.add(id);
 				}
@@ -123,7 +125,16 @@ public class SyncManager {
 		syncResult.stats.numInserts = pullNew(remotelyAdded.toArray(new String[0]));
 		syncResult.stats.numUpdates = pullChanged(remotelyUpdated.toArray(new String[0]));
 		syncResult.stats.numEntries += syncResult.stats.numInserts + syncResult.stats.numUpdates;
-		
+
+		// PHASE 4: remove deleted items
+		// First get all collection ids to make sure we don't inadvertently delete locally
+		String [] remoteResourceIds = null;
+		try {
+			remoteResourceIds = remote.getObjectIds();
+		} catch (NotFoundException e) {
+			throw new WeaveException("Couldn't get collection ids", e);
+		}
+
 		Log.i(TAG, "Removing non-dirty resources that are not present remotely anymore");
 		local.deleteAllExceptRemoteIds(remoteResourceIds);
 		local.commit();

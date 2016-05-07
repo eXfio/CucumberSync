@@ -20,7 +20,7 @@
 package org.exfio.csyncdroid;
 
 public class Constants {
-	public static final String APP_VERSION            = "1.4-beta-1";
+	public static final String APP_VERSION            = BuildConfig.VERSION_NAME;
 	public static final String ACCOUNT_TYPE_CSYNC     = "org.exfio.csyncdroid.csync";
 	public static final String ACCOUNT_TYPE_FXACCOUNT = "org.exfio.csyncdroid.fxaccount";
 	public static final String ACCOUNT_TYPE_LEGACYV5  = "org.exfio.csyncdroid.legacyv5";

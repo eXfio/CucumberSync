@@ -23,6 +23,7 @@ package org.exfio.csyncdroid.syncadapter;
 import android.accounts.Account;
 import android.content.Context;
 
+import org.exfio.csyncdroid.BuildConfig;
 import org.exfio.csyncdroid.Constants;
 
 public class CSyncAccountSettings extends FxAccountAccountSettings {
@@ -30,14 +31,16 @@ public class CSyncAccountSettings extends FxAccountAccountSettings {
 
     private static final int SETTINGS_VERSION = 1;
 
-    public static final String DEFAULT_ACCOUNT_SERVER = "https://api.accounts.cucumbersync.com/v1";
-    public static final String DEFAULT_TOKEN_SERVER   = "https://cucumbersync.com/token/1.0/sync/1.5";
+    public static final String DEFAULT_ACCOUNT_SERVER = BuildConfig.CSYNC_DEFAULT_ACCOUNT_SERVER;
+    public static final String DEFAULT_TOKEN_SERVER   = BuildConfig.CSYNC_DEFAULT_TOKEN_SERVER;
+
+    public static final String KEY_CREATE_ACCOUNT     = "createaccount";
 
     // Override properties of superclass FxAccountAccountSettings
     //@Override
-    protected static String accountType() { return Constants.ACCOUNT_TYPE_CSYNC; }
+    protected String accountType() { return Constants.ACCOUNT_TYPE_CSYNC; }
     //@Override
-    protected static int settingsVersion() { return SETTINGS_VERSION; }
+    protected int settingsVersion() { return SETTINGS_VERSION; }
 
     public CSyncAccountSettings() {
         super();

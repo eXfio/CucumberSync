@@ -44,7 +44,8 @@ import org.exfio.csyncdroid.util.Log;
 import java.util.Properties;
 
 public class AccountDetailsFragment extends Fragment implements TextWatcher {
-	
+	private static final String TAG = "exfio.AccountDetails";
+
 	ServerInfo serverInfo;
 	
 	EditText editAccountName;
@@ -87,11 +88,14 @@ public class AccountDetailsFragment extends Fragment implements TextWatcher {
 	// actions
 	
 	void addAccount() {
+		Log.d(TAG, "addAccount()");
 
 		try {
 			String accountName = editAccountName.getText().toString();
 			String accountType = serverInfo.getAccountType();
 			Properties propSettings = serverInfo.getAccountParamsAsProperties();
+
+			Log.d(TAG, "accountType: " + accountType);
 
 			AccountSettings settings = null;
 

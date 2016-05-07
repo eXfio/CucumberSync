@@ -81,9 +81,6 @@ public class MainActivity extends Activity {
 				Settings.EXTRA_ACCOUNT_TYPES,
 				new String[] {
 					Constants.ACCOUNT_TYPE_CSYNC
-					,Constants.ACCOUNT_TYPE_FXACCOUNT
-					,Constants.ACCOUNT_TYPE_LEGACYV5
-					,Constants.ACCOUNT_TYPE_EXFIOPEER
 				}
 			);
 	    }

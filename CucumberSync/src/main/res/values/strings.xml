@@ -13,6 +13,7 @@
     <string name="credentials_label">Account Credentials</string>
     <string name="user_name">User name:</string>
     <string name="password">Password:</string>
+    <string name="confirm_password">Confirm:</string>
     <string name="advanced_label">Advanced</string>
     <string name="account_server_label">Account Server:</string>
     <string name="token_server_label">Token Server:</string>
@@ -109,7 +110,7 @@
     <string name="account_details">Account details</string>
     <string name="account_name">Account name:</string>
     <string name="account_name_hint">My CalDAV/CardDAV Account</string>
-    <string name="email_address">Email address:</string>
+    <string name="email_address">Email:</string>
     <string name="organizer_hint">"ORGANIZER of your events; required if you use attendee info"</string>
     <string name="account_name_info">"Use your email address as account name because Android will use the account name as ORGANIZER field for events you create. You can't have two accounts with the same name.</string>
     <string name="read_only">read-only</string>
@@ -127,5 +128,20 @@
     <string name="csyncdroid_account_csync">Cucumber Sync</string>
     <string name="csyncdroid_account_name_hint">My Cucumber Sync Account</string>
     <string name="csyncdroid_help">Cucumber Sync Help</string>
+    <string name="credentials_username_hint">Email address or username</string>
+    <string name="credentials_password_hint">At least 8 characters</string>
+    <string name="credentials_confirm_password_hint">Enter password again</string>
+    <string name="credentials_email_hint">Email address (optional)</string>
+    <string name="credentials_button_signin">Sign In</string>
+    <string name="credentials_button_signup">Create Account</string>
+    <string name="credentials_button_gotosignin">Sign In</string>
+    <string name="credentials_button_gotosignup">Create account</string>
+    <string name="credentials_label_signin">Sign In</string>
+    <string name="credentials_label_signup">Create Account</string>
+    <string name="credentials_label_gotosignin">Already have an account?</string>
+    <string name="credentials_label_gotosignup">Don\'t have an account?</string>
+    <string name="credentials_label_legalese"><![CDATA[
+        By proceeding, you agree to the <a href="https://accounts.cucumbersync.com/legal/terms">Terms of Service</a> and <a href="https://accounts.cucumbersync.com/legal/privacy">Privacy Notice</a>; of Cucumber Sync.
+    ]]></string>
 
 </resources>

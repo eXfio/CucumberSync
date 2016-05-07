@@ -23,6 +23,8 @@ package org.exfio.csyncdroid.syncadapter;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.exfio.csyncdroid.BuildConfig;
+import org.exfio.csyncdroid.util.Log;
 import org.exfio.weave.WeaveException;
 import org.exfio.weave.account.WeaveAccount;
 import org.exfio.weave.account.fxa.FxAccount;
@@ -38,8 +40,8 @@ public class FxAccountAccountSettings extends AccountSettings {
 
 	private static final int SETTINGS_VERSION = 1;
 
-	public static final String DEFAULT_ACCOUNT_SERVER = "https://api.accounts.firefox.com/v1";
-	public static final String DEFAULT_TOKEN_SERVER   = "https://cucumbersync.com/token/1.0/sync/1.5";
+	public static final String DEFAULT_ACCOUNT_SERVER = BuildConfig.FXA_DEFAULT_ACCOUNT_SERVER;
+	public static final String DEFAULT_TOKEN_SERVER   = BuildConfig.FXA_DEFAULT_TOKEN_SERVER;
 
 	public final static String
 	KEY_ACCOUNT_SERVER   = "accountserver",
@@ -52,8 +54,8 @@ public class FxAccountAccountSettings extends AccountSettings {
 	KEY_SYNCTOKEN        = "synctoken";
 
 	// Allow subclasses, i.e. CSyncAccountSettings, to override account properties
-	protected static String accountType() { return Constants.ACCOUNT_TYPE_FXACCOUNT; }
-	protected static int settingsVersion() { return SETTINGS_VERSION; }
+	protected String accountType() { return Constants.ACCOUNT_TYPE_FXACCOUNT; }
+	protected int settingsVersion() { return SETTINGS_VERSION; }
 
 	public FxAccountAccountSettings() {
 		super();
@@ -111,6 +113,8 @@ public class FxAccountAccountSettings extends AccountSettings {
 
 	@Override
 	public Account createAccount(Context context, String accountName, Properties prop) throws WeaveException {
+		Log.d(TAG, "createAccount()");
+		Log.d(TAG, "accountType: " + accountType);
 
 		accountManager = AccountManager.get(context);
 		Account account = new Account(accountName, accountType);

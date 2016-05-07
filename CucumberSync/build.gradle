@@ -15,7 +15,30 @@ configure(project.rootProject) {
             defValue
         }
     }
+
+    ext.getEnvOrProperty = { key,msg,isPassword,defValue ->
+        if (System.getenv(key)) {
+            System.getenv(key)
+        } else if (project.hasProperty(key)) {
+            project.getProperty(key)
+        } else {
+            defValue
+        }
+    }
+
+    ext.getSemanticVersionName = { major,minor,buildType,buildNum ->
+        if (buildType != "") {
+            new String(major + "." + minor + "-" + buildType + "-" + buildNum)
+        } else {
+            new String(major + "." + minor)
+        }
+    }
 }
+
+def versionMajor     = 1
+def versionMinor     = 4
+def versionBuildType = "beta"
+def versionBuild     = 1
 
 android {
     compileSdkVersion 21
@@ -23,6 +46,10 @@ android {
 
     defaultConfig {
         applicationId "org.exfio.csyncdroid"
+        versionCode 8
+        versionName = "1.4-beta-1"
+        //versionName getSemanticVersionName(${versionMajor}, ${versionMinor}, ${versionBuildType}, ${versionBuild})
+
         minSdkVersion 14
         targetSdkVersion 21
         multiDexEnabled = true
@@ -51,22 +78,33 @@ android {
     }
 
     signingConfigs {
-
         release {
-            storeFile     file(getEnvOrPrompt("KEYSTORE", "Enter keystore path", false, "android.keystore"))
-            storePassword getEnvOrPrompt("KEYSTORE_PASSWORD", "Enter keystore password", true, null)
-            keyAlias      getEnvOrPrompt("KEY_ALIAS", "Enter key alias", false, null)
-            keyPassword   getEnvOrPrompt("KEY_PASSWORD", "Enter key password", true, null)
+            storeFile     file(project.getProperty('storeFile'))
+            storePassword project.getProperty('storePassword')
+            keyAlias      project.getProperty('keyAlias')
+            keyPassword   project.getProperty('keyPassword')
         }
     }
 
     buildTypes {
         debug {
             minifyEnabled false
+
+            buildConfigField "String", "LOG_LEVEL",                    "\"trace\""
+            buildConfigField "String", "CSYNC_DEFAULT_ACCOUNT_SERVER", "\"" + project.getProperty('debugCSyncAccountServer') + "\""
+            buildConfigField "String", "CSYNC_DEFAULT_TOKEN_SERVER",   "\"" + project.getProperty('debugCSyncTokenServer') + "\""
+            buildConfigField "String", "FXA_DEFAULT_ACCOUNT_SERVER",   "\"" + project.getProperty('debugFxaAccountServer') + "\""
+            buildConfigField "String", "FXA_DEFAULT_TOKEN_SERVER",     "\"" + project.getProperty('debugFxaTokenServer') + "\""
         }
         release {
             minifyEnabled false
             signingConfig signingConfigs.release
+
+            buildConfigField "String", "LOG_LEVEL",                    "\"warn\""
+            buildConfigField "String", "CSYNC_DEFAULT_ACCOUNT_SERVER", "\"https://api.accounts.cucumbersync.com/v1\""
+            buildConfigField "String", "CSYNC_DEFAULT_TOKEN_SERVER",   "\"https://cucumbersync.com/token/1.0/sync/1.5\""
+            buildConfigField "String", "FXA_DEFAULT_ACCOUNT_SERVER",   "\"https://api.accounts.firefox.com/v1\""
+            buildConfigField "String", "FXA_DEFAULT_TOKEN_SERVER",     "\"https://cucumbersync.com/token/1.0/sync/1.5\""
         }
     }
 }

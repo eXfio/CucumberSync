@@ -25,14 +25,18 @@ import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.exfio.csyncdroid.Constants;
 import org.exfio.csyncdroid.R;
@@ -41,6 +45,9 @@ public class CSyncEnterCredentialsFragment extends Fragment implements TextWatch
 
     EditText editUserName;
     EditText editPassword;
+    Button   buttonSignIn;
+    Button   buttonGotoSignUp;
+    TextView labelLegalese;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,27 +59,27 @@ public class CSyncEnterCredentialsFragment extends Fragment implements TextWatch
         editPassword = (EditText) v.findViewById(R.id.password);
         editPassword.addTextChangedListener(this);
 
-        // hook into action bar
-        setHasOptionsMenu(true);
+        buttonSignIn = (Button) v.findViewById(R.id.buttonSignIn);
+        buttonSignIn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                queryServer();
+            }
+        });
+
+        buttonGotoSignUp = (Button) v.findViewById(R.id.buttonGotoSignUp);
+        buttonGotoSignUp.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                gotoSignUp();
+            }
+        });
+
+        labelLegalese =(TextView)v.findViewById(R.id.labelLegalese);
+        labelLegalese.setClickable(true);
+        labelLegalese.setMovementMethod(LinkMovementMethod.getInstance());
+        String textLegalese = v.getResources().getString(R.string.credentials_label_legalese);
+        labelLegalese.setText(Html.fromHtml(textLegalese));
 
         return v;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.enter_credentials, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.next:
-                queryServer();
-                break;
-            default:
-                return false;
-        }
-        return true;
     }
 
     void queryServer() {
@@ -94,27 +101,29 @@ public class CSyncEnterCredentialsFragment extends Fragment implements TextWatch
         dialog.show(ft, QueryServerDialogFragment.class.getName());
     }
 
+    void gotoSignUp() {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
 
-    // input validation
+        // pass to "sign up" fragment
+        CSyncEnterCredentialsSignUpFragment signUpFragment = new CSyncEnterCredentialsSignUpFragment();
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
+        ft.replace(R.id.fragment_container, signUpFragment)
+                .addToBackStack(null)
+                .commitAllowingStateLoss();
+    }
+
+
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
         //TODO - improve validation
         boolean ok = (
                 editUserName.getText().length() > 0
                 &&
                 editPassword.getText().length() > 0
         );
-
-        MenuItem item = menu.findItem(R.id.next);
-        item.setEnabled(ok);
-    }
-
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-    }
-
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        getActivity().invalidateOptionsMenu();
+        buttonSignIn.setEnabled(ok);
     }
 
     public void afterTextChanged(Editable s) {

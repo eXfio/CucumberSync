@@ -19,10 +19,16 @@
  */
 package org.exfio.csyncdroid.util;
 
+import org.exfio.csyncdroid.BuildConfig;
+
 import java.lang.IllegalArgumentException;
 import java.util.logging.Level;
 
 public class Log extends org.exfio.weave.util.Log {
+
+	static {
+		init(BuildConfig.LOG_LEVEL);
+	}
 
 	public static Level toJavaUtilLevel(String level) throws IllegalArgumentException {
 		if ( level.toLowerCase().equals("error") ) {
@@ -34,12 +40,56 @@ public class Log extends org.exfio.weave.util.Log {
 		} else if ( level.toLowerCase().equals("debug") ) {
 			return java.util.logging.Level.FINE;
 		} else if ( level.toLowerCase().equals("trace") ) {
-			return java.util.logging.Level.FINER;
+			return java.util.logging.Level.FINEST;
 		} else {
 			throw new IllegalArgumentException(String.format("Log level '%s' not recognised", level));
 		}	
 	}
-	
+
+	private static void setWeaveLogLevel(String level) {
+
+		//Enable http logging if level is debug or trace
+		//if ( level.toLowerCase().matches("debug|trace") ) {
+
+			//Apache HttpClient officially ported to Android as of v4.3 uses android logging directly hence need to use adb only
+			//$ adb shell setprop log.tag.HttpClient DEBUG
+
+			//Android vX fork of Apache HttpClient
+			java.util.logging.Logger.getLogger("httpclient.wire").setLevel(toJavaUtilLevel(level));
+			java.util.logging.Logger.getLogger("httpclient.wire.content").setLevel(toJavaUtilLevel(level));
+			java.util.logging.Logger.getLogger("httpclient.wire.header").setLevel(toJavaUtilLevel(level));
+			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", level);
+			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.content", level);
+			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header", level);
+
+			//Log level not honoured by logcat hence we also need to set log level via adb
+			//$ adb shell setprop log.tag.httpclient.wire.content DEBUG
+			//$ adb shell setprop log.tag.httpclient.wire.header DEBUG
+
+			//Android vY fork of Apache HttpClient
+			java.util.logging.Logger.getLogger("org.apache.http").setLevel(toJavaUtilLevel(level));
+			java.util.logging.Logger.getLogger("org.apache.http.wire").setLevel(toJavaUtilLevel(level));
+			java.util.logging.Logger.getLogger("org.apache.http.headers").setLevel(toJavaUtilLevel(level));
+			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", level);
+			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", level);
+			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers", level);
+
+			//Log level not honoured by logcat hence we also need to set log level via adb
+			//$ adb shell setprop log.tag.org.apache.http.wire DEBUG
+			//$ adb shell setprop log.tag.org.apache.http.headers DEBUG
+
+			//fxaclient
+			//org.mozilla.gecko.background.common.log.Logger.init(level);
+			//org.mozilla.gecko.background.common.log.Logger.setLogLevel("exfio.fxaclient", level);
+			java.util.logging.Logger.getLogger("exfio").setLevel(toJavaUtilLevel(level));
+			java.util.logging.Logger.getLogger("exfio.fxaclient").setLevel(toJavaUtilLevel(level));
+			System.setProperty("org.apache.commons.logging.simplelog.log.exfio", level);
+			System.setProperty("org.apache.commons.logging.simplelog.log.exfio.fxaclient", level);
+
+		//}
+
+	}
+
 	public static void init(String level) {
 		org.exfio.weave.util.Log.init(level);
 		
@@ -48,47 +98,12 @@ public class Log extends org.exfio.weave.util.Log {
 		//Android logging has some peculiarities
 		//1) Apache commons logging defaults to java.util.logging on Android hence we need to set this level
 		java.util.logging.Logger.getLogger(logtag).setLevel(toJavaUtilLevel(level));
-		//java.util.logging.Logger.getLogger(logtag).setLevel(java.util.logging.Level.FINEST);
-		
+
 		//2) Log level not honoured by logcat hence we also need to set log level via adb
 		//$ adb shell setprop log.tag.LOGGER LEVEL
-		
-		//Enable http logging if level is debug or trace
-		if ( level.toLowerCase().matches("debug|trace") ) {
-			
-			//Apache HttpClient officially ported to Android as of v4.3 uses android logging directly hence need to use adb only
-			//$ adb shell setprop log.tag.HttpClient DEBUG			
-			
-			//Android vX fork of Apache HttpClient
-			java.util.logging.Logger.getLogger("httpclient.wire").setLevel(java.util.logging.Level.FINEST);
-			java.util.logging.Logger.getLogger("httpclient.wire.content").setLevel(java.util.logging.Level.FINEST);
-			java.util.logging.Logger.getLogger("httpclient.wire.header").setLevel(java.util.logging.Level.FINEST);
-			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire", "debug");
-			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.content", "debug");
-			System.setProperty("org.apache.commons.logging.simplelog.log.httpclient.wire.header", "debug");
 
-			//Log level not honoured by logcat hence we also need to set log level via adb
-			//$ adb shell setprop log.tag.httpclient.wire.content DEBUG
-			//$ adb shell setprop log.tag.httpclient.wire.header DEBUG
-
-			//Android vY fork of Apache HttpClient
-			java.util.logging.Logger.getLogger("org.apache.http").setLevel(java.util.logging.Level.FINEST);
-			java.util.logging.Logger.getLogger("org.apache.http.wire").setLevel(java.util.logging.Level.FINEST);
-			java.util.logging.Logger.getLogger("org.apache.http.headers").setLevel(java.util.logging.Level.FINEST);			 
-			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http", "debug");
-			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.wire", "debug");
-			System.setProperty("org.apache.commons.logging.simplelog.log.org.apache.http.headers", "debug");
-
-			//Log level not honoured by logcat hence we also need to set log level via adb
-			//$ adb shell setprop log.tag.org.apache.http.wire DEBUG
-			//$ adb shell setprop log.tag.org.apache.http.headers DEBUG
-
-			//fxaclient
-			java.util.logging.Logger.getLogger("exfio").setLevel(java.util.logging.Level.FINEST);
-			java.util.logging.Logger.getLogger("exfio.fxaclient").setLevel(java.util.logging.Level.FINEST);
-			System.setProperty("org.apache.commons.logging.simplelog.log.exfio", "debug");
-			System.setProperty("org.apache.commons.logging.simplelog.log.exfio.fxaclient", "debug");
-		}
+		//3) Set weave log levels
+		setWeaveLogLevel(level);
 	}
 	
 	public static void setLogLevel(String logger, String level) {
@@ -97,10 +112,12 @@ public class Log extends org.exfio.weave.util.Log {
 		//Android logging has some peculiarities
 		//1) Apache commons logging defaults to java.util.logging on Android hence we need to set this level
 		java.util.logging.Logger.getLogger(logger).setLevel(toJavaUtilLevel(level));
-		//java.util.logging.Logger.getLogger(logger).setLevel(java.util.logging.Level.FINEST);
-		
+
 		//2) Log level not honoured by logcat hence we also need to set log level via adb
 		//$ adb shell setprop log.tag.LOGGER LEVEL
+
+		//3) Set weave log levels
+		setWeaveLogLevel(level);
 	}
 
 }

@@ -23,11 +23,17 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import org.exfio.csyncdroid.Constants;
 import org.exfio.csyncdroid.R;
 
+import java.util.regex.Pattern;
+
 public class AddAccountActivity extends Activity {
+
+
+	private static final String USERNAME_PATTERN = "^[a-zA-Z0-9._\\-]{3,15}$";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,5 +67,19 @@ public class AddAccountActivity extends Activity {
 				.add(R.id.fragment_container, fragment, fragmentTag)
 				.commit();
 		}
+	}
+
+	public final static boolean isValidEmail(CharSequence target) {
+		return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+	}
+
+	public final static boolean isValidUsername(CharSequence target) {
+		Pattern pattern = Pattern.compile(USERNAME_PATTERN);
+		return !TextUtils.isEmpty(target) && pattern.matcher(target).matches();
+	}
+
+	public final static boolean isValidPassword(CharSequence target) {
+		//FIXME - improve validation
+		return !TextUtils.isEmpty(target) && target.length() >= 8;
 	}
 }
